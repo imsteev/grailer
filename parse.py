@@ -40,9 +40,7 @@ class FeedParser(object):
         result['price'] = f.find('h3', 'original-price').text
 
         return result
-        
-dp = FeedParser('./feed.html')
-itemsHTML = dp.get_feed_items()
 
+# Move this out to a main python file   
+dp = FeedParser('./feed.html')
 dp.create_csv()
-# feed.csv: designer, size, title or null, age or null
