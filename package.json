@@ -1,0 +1,19 @@
+{
+  "name": "grailer",
+  "version": "1.0.0",
+  "description": "webscraper for grailed.com",
+  "main": "index.js",
+  "author": "stephen chung",
+  "license": "MIT",
+  "dependencies": {
+    "casperjs": "^1.1.4",
+    "cheerio": "^1.0.0-rc.2",
+    "global": "^4.3.2",
+    "mongoose": "^4.11.5"
+  },
+  "scripts": {
+    "scrape": "casperjs ./index.js",
+    "parse": "python3 parse.py",
+    "snp": "echo 'SCRAPING...'; yarn run scrape; echo 'FINISHED SCRAPING'; yarn run parse"
+  }
+}
