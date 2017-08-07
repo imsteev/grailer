@@ -4,7 +4,7 @@ var casper = require('casper').create({
     logLevel: 'debug'
 });
 
-var NUMSCROLLS = 2
+var NUMSCROLLS = 350
 
 var MARKETS = ['grailed', 'hype', 'core']
 
@@ -20,11 +20,15 @@ casper.start('https://grailed.com/', function() {
 
 casper.then(function() {
     casper.echo("SCRAPING...\n")
-})
+});
 
 casper.then(function () {
     printScrapeDetails();
-})
+});
+
+casper.then(function () {
+    configureFilters();
+});
 
 casper.then(function () {
     loadFeed(NUMSCROLLS);
@@ -62,6 +66,19 @@ function loadFeed (numScrolls) {
             casper.log('SCROLL: ' + ++scrollNum);
         });
     })
+}
+
+function configureFilters() {
+    configureMarketsToScrape();
+    configureDesignersToScrape();
+}
+
+function configureMarketFilters() {
+
+}
+
+function configureDesignerFilters() {
+    
 }
 
 function getMarketsToScrape() {

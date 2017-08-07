@@ -1,4 +1,5 @@
 import csv
+import pandas as pd
 from bs4 import BeautifulSoup
 
 class FeedParser(object):
@@ -43,4 +44,5 @@ class FeedParser(object):
 
 # Move this out to a main python file   
 dp = FeedParser('./feed.html')
+
 dp.create_csv()
