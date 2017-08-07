@@ -25,6 +25,7 @@ class FeedParser(object):
             writer = csv.writer(csvfile)
 
             for feed_item_html in self.get_feed_items():
+                # use try catch
                 item = self.extract_feed_item_fields(feed_item_html)
 
                 writer.writerow([item['title'], item['designer'],
@@ -33,7 +34,7 @@ class FeedParser(object):
     def extract_feed_item_fields(self, feed_item_html):
         result = {}
         f = feed_item_html
-
+        print(f.find('h3', 'listing-title').text)
         result['age'] = f.find('h3', 'listing-age').text
         result['designer'] = f.find('h3', 'listing-designer').text
         result['size'] = f.find('h3', 'listing-size').text

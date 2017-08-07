@@ -4,12 +4,18 @@ var casper = require('casper').create({
     logLevel: 'debug'
 });
 
-var NUMSCROLLS = 350
+var NUMSCROLLS = 2
 
 var MARKETS = ['grailed', 'hype', 'core']
+var MARKET_FILTER_SELECTOR = {
+    grailed: '.strata-wrapper div.active-indicator:nth-child(1)',
+    hype: '.strata-wrapper div.active-indicator:nth-child(2)',
+    core: '.strata-wrapper div.active-indicator:nth-child(3)'
+}
 
 var MARKETS_TO_SCRAPE = [] /* if empty, scrape all markets */
 var DESIGNERS_TO_SCRAPE = [] /* if empty, scrape all designers */
+var CATEGORIES_TO_SCRAPE = [] /* if empty, scrape all categories */
 /* ---------------------------------------------------------------------------*/
 var scrollNum = 0
 
@@ -27,10 +33,27 @@ casper.then(function () {
 });
 
 casper.then(function () {
-    configureFilters();
+    configureMarketFilter('grailed');
 });
 
 casper.then(function () {
+    configureMarketFilter('hype');
+});
+
+casper.then(function() {
+    configureMarketFilter('core');
+});
+
+casper.then(function () {
+    this.click('.designers-wrapper .view-all-btn');
+    this.wait('500', function () {
+        this.click(getDesignerSelector(13));
+        this.wait('500');
+    });
+});
+
+casper.then(function () {
+    // TODO: figure out why a feed-item won't have all its html
     loadFeed(NUMSCROLLS);
 });
 
@@ -70,15 +93,34 @@ function loadFeed (numScrolls) {
 
 function configureFilters() {
     configureMarketsToScrape();
-    configureDesignersToScrape();
+    // configureDesignersToScrape();
 }
 
-function configureMarketFilters() {
+function buildDesignerToIndexMapping() {
 
 }
 
-function configureDesignerFilters() {
-    
+function configureMarketFilter(marketName) {
+    if (casper.cli.has(marketName)) {
+        this.click(MARKET_FILTER_SELECTOR[marketName]);
+        this.wait(1000);
+    }
+}
+
+function configureDesignerFilters(designer) {
+    // need to also index into the right designer-group
+    var dti = buildDesignerToIndexMapping();
+    var index = getDesignerSelector(dti[designer]);
+
+    this.click('.designer-group .view-all-btn');
+    this.wait('500', function () {
+        this.click(getDesignerSelector(index));
+    });
+}   
+
+// 1-based
+function getDesignerSelector(index) {
+    return '.designers-group .active-indicator:nth-child(' + index + ')';
 }
 
 function getMarketsToScrape() {
