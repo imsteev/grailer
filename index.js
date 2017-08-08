@@ -50,7 +50,7 @@ casper.then(function () {
 });
 
 casper.then(function () {
-    var html = this.getHTML();
+    var html = this.getHTML('.feed', true);
     fs.write('feed.html', html)
 });
 
