@@ -17,7 +17,7 @@ var MARKET_FILTER_SELECTOR = {
 var DESIGNER_SEARCH_SELECTOR = '.designer-search-wrapper input';
 var DESIGNER_SEARCH_LIST_SELECTOR = '.designer-search-wrapper .designer-list';
 
-var MARKETS_TO_SCRAPE = [] /* if empty, scrape all markets */
+var MARKETS_TO_SCRAPE = [] /* By default, only grails is selected */
 var DESIGNERS_TO_SCRAPE = [] /* if empty, scrape all designers */
 var CATEGORIES_TO_SCRAPE = [] /* if empty, scrape all categories */
 /* ---------------------------------------------------------------------------*/
