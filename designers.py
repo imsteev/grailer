@@ -3,9 +3,8 @@ import pandas as pd
 class Grailed(object):
     def __init__(self, feed_csv_path):
         self.df = None
-
         with open(feed_csv_path, 'r') as f:
-            self.df = pd.read_csv(f, names=['title', 'designer', 'size', 'price', 'age'])
+            self.df = pd.read_csv(f, names=['title', 'designer', 'size', 'price', 'original_price', 'new_price', 'age'])
         
         # Remove dollar sign and convert to int
         self.df['price'] = self.df['price'].map(lambda price_str: int(price_str[1:]))

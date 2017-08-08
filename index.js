@@ -4,7 +4,7 @@ var casper = require('casper').create({
     logLevel: 'debug'
 });
 
-var NUMSCROLLS = 75
+var NUMSCROLLS = 3
 
 var MARKETS = ['grails', 'hype', 'core']
 
