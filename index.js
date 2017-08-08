@@ -34,7 +34,6 @@ casper.then(function() {
 
 casper.then(function () {
     printScrapeDetails();
-    // printMarketFilterDetails();
 });
 
 casper.then(function() {
@@ -56,6 +55,7 @@ casper.then(function () {
 
 casper.then(function () {
     this.echo('\nFINISHED!');
+    // printMarketFilterDetails();
 });
 
 casper.run();
