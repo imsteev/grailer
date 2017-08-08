@@ -21,7 +21,7 @@ class FeedParser(object):
         return self.soup.find_all('div', 'feed-item')
 
     def create_csv(self):
-        fields_to_write = ['title', 'designer', 'size', 'price', 'original_price', 'new_price', 'age']
+        fields_to_write = ['title', 'designer', 'size', 'price', 'original_price', 'age']
 
         with open('feed_items.csv', 'w') as csvfile:
             writer = csv.writer(csvfile)
@@ -43,8 +43,8 @@ class FeedParser(object):
         result['title'] = f.find('h3', 'listing-title').text
 
         marked_down = f.find('h3', 'new-price') is not None
-        result['original_price'] = result['price'] = f.find('h3', 'original-price').text
-        result['new_price'] = f.find('h3', 'new-price').text if marked_down else ""
+        result['original_price'] = f.find('h3', 'original-price').text
+        result['price'] = f.find('h3', 'new-price').text if marked_down else result['original_price']
 
         return result
 
