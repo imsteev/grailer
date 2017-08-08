@@ -4,7 +4,7 @@ var casper = require('casper').create({
     logLevel: 'debug'
 });
 
-var NUMSCROLLS = 2
+var NUMSCROLLS = 5
 
 var MARKETS = ['grailed', 'hype', 'core']
 var MARKET_FILTER_SELECTOR = {
@@ -45,11 +45,12 @@ casper.then(function() {
 });
 
 casper.then(function () {
-    this.click('.designers-wrapper .view-all-btn');
-    this.wait('500', function () {
-        this.click(getDesignerSelector(13));
-        this.wait('500');
-    });
+    casper.sendKeys('.designer-search-wrapper input', 'supreme', { reset : true});
+    this.wait('500');
+});
+
+casper.then(function () {
+    selectDesignerFilter('supreme');
 });
 
 casper.then(function () {
@@ -96,14 +97,18 @@ function configureFilters() {
     // configureDesignersToScrape();
 }
 
-function buildDesignerToIndexMapping() {
-
+function selectDesignerFilter(designer) {
+    casper.sendKeys('.designer-search-wrapper input', designer, { reset : true });
+    casper.wait(500, function () {
+        casper.click('.designer-search-wrapper .designer-list .designer .active-indicator:nth-child(1)');
+        casper.wait(1000)
+    });
 }
 
 function configureMarketFilter(marketName) {
     if (casper.cli.has(marketName)) {
-        this.click(MARKET_FILTER_SELECTOR[marketName]);
-        this.wait(1000);
+        casper.click(MARKET_FILTER_SELECTOR[marketName]);
+        casper.wait(1000);
     }
 }
 
@@ -117,6 +122,10 @@ function configureDesignerFilters(designer) {
         this.click(getDesignerSelector(index));
     });
 }   
+
+function getDesignerGroupIndex(designer) {
+    
+}
 
 // 1-based
 function getDesignerSelector(index) {
