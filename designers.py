@@ -10,57 +10,57 @@ class Grailed(object):
         self.df['price'] = self.df['price'].map(lambda price_str: int(price_str[1:]))
         self.df['designer'] = self.df['designer'].map(lambda designer_str: designer_str.lower())
 
-    def get_brand_avg_price(self, brand_name, group=None):
-        brand_group = self.get_brand_group(brand_name)
+    def get_designer_avg_price(self, designer_name, group=None):
+        designer_group = self.get_designer_group(designer_name)
 
         if group is not None:
-            brand_group = group
+            designer_group = group
 
-        return brand_group['price'].mean()
+        return designer_group['price'].mean()
 
-    def get_brand_min_price(self, brand_name, group=None):
-        brand_group = self.get_brand_group(brand_name)
+    def get_designer_min_price(self, designer_name, group=None):
+        designer_group = self.get_designer_group(designer_name)
         
         if group is not None:
-            brand_group = group
+            designer_group = group
 
-        return brand_group['price'].min()
+        return designer_group['price'].min()
     
-    def get_brand_max_price(self, brand_name, group=None):
-        brand_group = self.get_brand_group(brand_name)
+    def get_designer_max_price(self, designer_name, group=None):
+        designer_group = self.get_designer_group(designer_name)
         
         if group is not None:
-            brand_group = group
+            designer_group = group
 
-        return brand_group['price'].max()
+        return designer_group['price'].max()
 
-    def get_brand_group(self, brand_name):
+    def get_designer_group(self, designer_name):
         groups = self.df.groupby('designer')
 
-        return groups.get_group(brand_name)
+        return groups.get_group(designer_name)
 
-    def get_brand_group_with_collabs(self, brand_name):
+    def get_designer_group_with_collabs(self, designer_name):
         df = self.df.copy()
 
-        def extract_collab_brand(brand):
-            if brand_name in brand:
-                return brand_name
-            return brand
+        def extract_collab_designer(designer):
+            if designer_name in designer:
+                return designer_name
+            return designer
 
-        df['designer'].map(extract_collab_brand)
+        df['designer'].map(extract_collab_designer)
 
-        return df.groupby('designer').get_group(brand_name)
+        return df.groupby('designer').get_group(designer_name)
 
 G = Grailed('./feed_items.csv')
 
-# brand_to_group = G.df.groupby('designer').indices
-# for brand_name in brand_to_group:
-#     print("%s : %0.2f" % (brand_name, G.get_brand_avg_price(brand_name)))
+# designer_to_group = G.df.groupby('designer').indices
+# for designer_name in designer_to_group:
+#     print("%s : %0.2f" % (designer_name, G.get_designer_avg_price(designer_name)))
 
 print("Total items scraped: %d" % G.df.shape[0])
 print("Average price of all items scraped: $%0.2f" % G.df['price'].mean())
 
-class BrandSummary(object):
+class designerSummary(object):
     pass
 
 

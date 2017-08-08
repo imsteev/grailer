@@ -183,4 +183,6 @@ function printScrapeDetails() {
     } else {
         casper.echo("  DESIGNERS: " + DESIGNERS_TO_SCRAPE);
     }
+
+    casper.echo("  CATEGORIES: ALL");
 }
