@@ -2,15 +2,19 @@ import pandas as pd
 
 class Grailed(object):
     def __init__(self, feed_csv_path):
-        self.df = None
-        with open(feed_csv_path, 'r') as f:
-            self.df = pd.read_csv(f, names=['title', 'designer', 'size', 'price', 'original_price', 'age'])
-        
-        # Remove dollar sign and convert to int
-        self.df['price'] = self.df['price'].map(lambda price_str: int(price_str[1:]))
-        self.df['original_price'] = self.df['original_price'].map(lambda price_str: int(price_str[1:]))
-        self.df['designer'] = self.df['designer'].map(lambda designer_str: designer_str.lower())
+        self.df = self.load_df_from_csv(feed_csv_path)
 
+    def load_df_from_csv(self, feed_csv_path):
+        with open(feed_csv_path, 'r') as f:
+            df = pd.read_csv(f, names=['title', 'designer', 'size', 'price', 'original_price', 'age'])
+        
+            # Remove dollar sign and convert to int
+            df['price'] = df['price'].map(lambda price_str: int(price_str[1:]))
+            df['original_price'] = df['original_price'].map(lambda price_str: int(price_str[1:]))
+            df['designer'] = df['designer'].map(lambda designer_str: designer_str.lower())
+
+        return df
+    
     def get_designer_avg_price(self, designer_name, group=None):
         designer_group = self.get_designer_group(designer_name)
 
