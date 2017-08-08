@@ -54,9 +54,12 @@ class Grailed(object):
 
 G = Grailed('./feed_items.csv')
 
-brand_to_group = G.df.groupby('designer').indices
-for brand_name in brand_to_group:
-    print("%s : %0.2f" % (brand_name, G.get_brand_avg_price(brand_name)))
+# brand_to_group = G.df.groupby('designer').indices
+# for brand_name in brand_to_group:
+#     print("%s : %0.2f" % (brand_name, G.get_brand_avg_price(brand_name)))
+
+print("Total items scraped: %d" % G.df.shape[0])
+print("Average price of all items scraped: $%0.2f" % G.df['price'].mean())
 
 class BrandSummary(object):
     pass

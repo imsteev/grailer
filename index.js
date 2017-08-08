@@ -4,14 +4,18 @@ var casper = require('casper').create({
     logLevel: 'debug'
 });
 
-var NUMSCROLLS = 5
+var NUMSCROLLS = 75
 
-var MARKETS = ['grailed', 'hype', 'core']
+var MARKETS = ['grails', 'hype', 'core']
+
 var MARKET_FILTER_SELECTOR = {
-    grailed: '.strata-wrapper div.active-indicator:nth-child(1)',
+    grails: '.strata-wrapper div.active-indicator:nth-child(1)',
     hype: '.strata-wrapper div.active-indicator:nth-child(2)',
     core: '.strata-wrapper div.active-indicator:nth-child(3)'
 }
+
+var DESIGNER_SEARCH_SELECTOR = '.designer-search-wrapper input';
+var DESIGNER_SEARCH_LIST_SELECTOR = '.designer-search-wrapper .designer-list';
 
 var MARKETS_TO_SCRAPE = [] /* if empty, scrape all markets */
 var DESIGNERS_TO_SCRAPE = [] /* if empty, scrape all designers */
@@ -30,31 +34,18 @@ casper.then(function() {
 
 casper.then(function () {
     printScrapeDetails();
-});
-
-casper.then(function () {
-    configureMarketFilter('grailed');
-});
-
-casper.then(function () {
-    configureMarketFilter('hype');
+    // printMarketFilterDetails();
 });
 
 casper.then(function() {
-    configureMarketFilter('core');
+    configureMarketFilters();
 });
 
 casper.then(function () {
-    casper.sendKeys('.designer-search-wrapper input', 'supreme', { reset : true});
-    this.wait('500');
+    configureDesignerFilters();
 });
 
 casper.then(function () {
-    selectDesignerFilter('supreme');
-});
-
-casper.then(function () {
-    // TODO: figure out why a feed-item won't have all its html
     loadFeed(NUMSCROLLS);
 });
 
@@ -69,20 +60,6 @@ casper.then(function () {
 
 casper.run();
 
-function printScrapeDetails() {
-    if (MARKETS_TO_SCRAPE.length === 0) {
-        casper.echo("  MARKETS: ALL");
-    } else {
-        casper.echo("  MARKETS: " + MARKETS_TO_SCRAPE);
-    }
-
-    if (DESIGNERS_TO_SCRAPE.length === 0) {
-        casper.echo("  DESIGNERS: ALL");
-    } else {
-        casper.echo("  DESIGNERS: " + DESIGNERS_TO_SCRAPE);
-    }
-}
-
 function loadFeed (numScrolls) {
     casper.repeat(numScrolls, function () {
         casper.scrollToBottom();
@@ -92,42 +69,62 @@ function loadFeed (numScrolls) {
     })
 }
 
-function configureFilters() {
-    configureMarketsToScrape();
-    // configureDesignersToScrape();
-}
-
-function selectDesignerFilter(designer) {
-    casper.sendKeys('.designer-search-wrapper input', designer, { reset : true });
-    casper.wait(500, function () {
-        casper.click('.designer-search-wrapper .designer-list .designer .active-indicator:nth-child(1)');
-        casper.wait(1000)
+function configureDesignerFilters() {
+    var i = 0;
+    casper.repeat(DESIGNERS_TO_SCRAPE.length, function () {
+        clickDesignerFilter(DESIGNERS_TO_SCRAPE[i++]);
     });
 }
 
-function configureMarketFilter(marketName) {
-    if (casper.cli.has(marketName)) {
-        casper.click(MARKET_FILTER_SELECTOR[marketName]);
+function configureMarketFilters() {
+    var i = 0;
+    casper.repeat(MARKETS.length, function () {
+        var marketName = MARKETS[i++]
+
+        if (MARKETS_TO_SCRAPE.indexOf(marketName) !== -1) {
+            setMarketFilterActive(marketName);
+        } else {
+            setMarketFilterNotActive(marketName);
+        }
+    });
+}
+
+/* -----------------------------CLICKS----------------------------------------*/
+function clickDesignerFilter(designer) {
+    casper.sendKeys(DESIGNER_SEARCH_SELECTOR, designer, { reset : true });
+    casper.wait(1000, function () {
+        casper.click(DESIGNER_SEARCH_LIST_SELECTOR + ' .designer .active-indicator:nth-child(1)');
         casper.wait(1000);
+    });
+}
+
+//TODO: refactor to a more general function for active-indicator's
+function setMarketFilterActive(marketName) {
+    var classes = casper.getElementAttribute(MARKET_FILTER_SELECTOR[marketName], 'class')
+    var isMarketActive = classes.split(" ").indexOf('active') !== -1;
+    
+    if (!isMarketActive) {
+        clickMarketFilter(marketName);
     }
 }
 
-function configureDesignerFilters(designer) {
-    // need to also index into the right designer-group
-    var dti = buildDesignerToIndexMapping();
-    var index = getDesignerSelector(dti[designer]);
+//TODO: refactor to a more general function for active-indicator's
+function setMarketFilterNotActive(marketName) {
+    var classes = casper.getElementAttribute(MARKET_FILTER_SELECTOR[marketName], 'class')
+    var isMarketActive = classes.split(" ").indexOf('active') !== -1;
 
-    this.click('.designer-group .view-all-btn');
-    this.wait('500', function () {
-        this.click(getDesignerSelector(index));
-    });
-}   
-
-function getDesignerGroupIndex(designer) {
-    
+    if (isMarketActive) {
+        clickMarketFilter(marketName);
+    }
 }
 
-// 1-based
+function clickMarketFilter(marketName) {
+    casper.click(MARKET_FILTER_SELECTOR[marketName]);
+    casper.wait(1000);
+}
+
+/* ---------------------------------------------------------------------------*/
+
 function getDesignerSelector(index) {
     return '.designers-group .active-indicator:nth-child(' + index + ')';
 }
@@ -141,7 +138,7 @@ function getMarketsToScrape() {
         }
     })
 
-    return result;
+    return result.length == 0 ? MARKETS.slice() : result;
 }
 
 function getDesignersToScrape() {
@@ -161,4 +158,29 @@ function getDesignersToScrape() {
 
     // Empty represents all designers
     return [];
+}
+
+function printMarketFilterDetails() {
+    require('utils').dump(casper.getElementInfo('.strata-wrapper .active-indicator:nth-child(1)')['text']);
+    require('utils').dump(casper.getElementInfo('.strata-wrapper .active-indicator:nth-child(1)')['attributes']);
+
+    require('utils').dump(casper.getElementInfo('.strata-wrapper .active-indicator:nth-child(2)')['text']);
+    require('utils').dump(casper.getElementInfo('.strata-wrapper .active-indicator:nth-child(2)')['attributes']);
+
+    require('utils').dump(casper.getElementInfo('.strata-wrapper .active-indicator:nth-child(3)')['text']);
+    require('utils').dump(casper.getElementInfo('.strata-wrapper .active-indicator:nth-child(3)')['attributes']);
+}
+
+function printScrapeDetails() {
+    if (MARKETS_TO_SCRAPE.length === 0) {
+        casper.echo("  MARKETS: ALL");
+    } else {
+        casper.echo("  MARKETS: " + MARKETS_TO_SCRAPE);
+    }
+
+    if (DESIGNERS_TO_SCRAPE.length === 0) {
+        casper.echo("  DESIGNERS: ALL");
+    } else {
+        casper.echo("  DESIGNERS: " + DESIGNERS_TO_SCRAPE);
+    }
 }
