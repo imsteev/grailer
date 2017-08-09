@@ -14,28 +14,28 @@ class Grailed(object):
             df['designer'] = df['designer'].map(lambda designer_str: designer_str.lower())
 
         return df
-    
-    def get_designer_avg_price(self, designer_name, group=None):
-        designer_group = self.get_designer_group(designer_name)
 
-        if group is not None:
-            designer_group = group
+    def get_designer_avg_price(self, designer_name, with_collabs=False):
+        if with_collabs:
+            designer_group = self.get_designer_group_with_collabs(designer_name)
+        else:
+            designer_group = self.get_designer_group(designer_name)
 
         return designer_group['price'].mean()
 
-    def get_designer_min_price(self, designer_name, group=None):
-        designer_group = self.get_designer_group(designer_name)
-        
-        if group is not None:
-            designer_group = group
+    def get_designer_min_price(self, designer_name, with_collabs=False):
+        if with_collabs:
+            designer_group = self.get_designer_group_with_collabs(designer_name)
+        else:
+            designer_group = self.get_designer_group(designer_name)
 
         return designer_group['price'].min()
     
-    def get_designer_max_price(self, designer_name, group=None):
-        designer_group = self.get_designer_group(designer_name)
-        
-        if group is not None:
-            designer_group = group
+    def get_designer_max_price(self, designer_name, with_collabs=False):
+        if with_collabs:
+            designer_group = self.get_designer_group_with_collabs(designer_name)
+        else:
+            designer_group = self.get_designer_group(designer_name)
 
         return designer_group['price'].max()
 
@@ -52,9 +52,14 @@ class Grailed(object):
                 return designer_name
             return designer
 
-        df['designer'].map(extract_collab_designer)
-
+        df['designer'] = df['designer'].map(extract_collab_designer)
         return df.groupby('designer').get_group(designer_name)
+
+    def get_number_of_items_scraped(self):
+        return self.df.shape[0]
+
+    def get_number_of_items_marked_down(self):
+        pass
 
 G = Grailed('./feed_items.csv')
 

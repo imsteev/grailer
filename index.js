@@ -4,7 +4,7 @@ var casper = require('casper').create({
     logLevel: 'debug'
 });
 
-var NUMSCROLLS = 3
+var NUMSCROLLS = 1
 
 var MARKETS = ['grails', 'hype', 'core']
 
@@ -12,6 +12,14 @@ var MARKET_FILTER_SELECTOR = {
     grails: '.strata-wrapper div.active-indicator:nth-child(1)',
     hype: '.strata-wrapper div.active-indicator:nth-child(2)',
     core: '.strata-wrapper div.active-indicator:nth-child(3)'
+}
+
+var SORT_FILTER_SELECTOR = {
+    default: '.sort .drop-down-toggle h3:nth-child(1)',
+    new: '.sort .drop-down-toggle h3:nth-child(2)',
+    low: '.sort .drop-down-toggle h3:nth-child(3)',
+    high: '.sort .drop-down-toggle h3:nth-child(4)',
+    popular: '.sort .drop-down-toggle h3:nth-child(5)'
 }
 
 var DESIGNER_SEARCH_SELECTOR = '.designer-search-wrapper input';
@@ -37,6 +45,10 @@ casper.then(function () {
 });
 
 casper.then(function() {
+    configureSortFilters();
+});
+
+casper.then(function() {
     configureMarketFilters();
 });
 
@@ -54,7 +66,11 @@ casper.then(function () {
 });
 
 casper.then(function () {
+    var log = require('utils').dump(this.result.log);
+
+    fs.write('log.json', JSON.stringify(this.result.log));
     this.echo('\nFINISHED!');
+    console.log(this.getElementInfo('.drop-down-toggle h3.selected').text)
     // printMarketFilterDetails();
 });
 
@@ -89,13 +105,42 @@ function configureMarketFilters() {
     });
 }
 
+// Support 'low-to-high' filter, and 'high-to-low' filter.
+function configureSortFilters() {
+    if (casper.cli.has('low')) {
+        clickSortFilter('low');
+    }
+    else if (casper.cli.has('high')) {
+        clickSortFilter('high');
+    }
+}
+
 /* -----------------------------CLICKS----------------------------------------*/
 function clickDesignerFilter(designer) {
     casper.sendKeys(DESIGNER_SEARCH_SELECTOR, designer, { reset : true });
     casper.wait(1000, function () {
-        casper.click(DESIGNER_SEARCH_LIST_SELECTOR + ' .designer .active-indicator:nth-child(1)');
-        casper.wait(1000);
+        try {
+            casper.click(DESIGNER_SEARCH_LIST_SELECTOR + ' .designer .active-indicator:nth-child(1)');
+            casper.log('SUCCESSFULLY SELECTED DESIGNER: ' + designer.toUpperCase());
+            casper.wait(1000);
+        } catch(e) {
+            casper.log('FAILED TO SELECT DESIGNER: ' + designer.toUpperCase());
+        }
     });
+}
+
+function clickMarketFilter(marketName) {
+    casper.click(MARKET_FILTER_SELECTOR[marketName]);
+    casper.wait(1000);
+}
+
+function clickSortFilter(sortName) {
+    if (sortName in SORT_FILTER_SELECTOR) {
+        casper.click('h3.drop-down-title');
+        casper.click(SORT_FILTER_SELECTOR[sortName]);
+        casper.log('SUCCESSFULLY SELECTED SORT FILTER: ' + sortName.toUpperCase());
+        casper.wait(1000);
+    }
 }
 
 //TODO: refactor to a more general function for active-indicator's
@@ -117,12 +162,6 @@ function setMarketFilterNotActive(marketName) {
         clickMarketFilter(marketName);
     }
 }
-
-function clickMarketFilter(marketName) {
-    casper.click(MARKET_FILTER_SELECTOR[marketName]);
-    casper.wait(1000);
-}
-
 /* ---------------------------------------------------------------------------*/
 
 function getDesignerSelector(index) {
