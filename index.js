@@ -4,7 +4,7 @@ var casper = require('casper').create({
     logLevel: 'debug'
 });
 
-var NUMSCROLLS = 1
+var NUM_ITEMS = 1000
 
 var MARKETS = ['grails', 'hype', 'core']
 
@@ -31,18 +31,25 @@ var CATEGORIES_TO_SCRAPE = [] /* if empty, scrape all categories */
 /* ---------------------------------------------------------------------------*/
 var scrollNum = 0
 
+// process.on('SIGINT', function () {
+//     console.log('num items before interrupt: ' + numFeedItems());
+// });
+
 casper.start('https://grailed.com/', function() {
     MARKETS_TO_SCRAPE = getMarketsToScrape().slice();
     DESIGNERS_TO_SCRAPE = getDesignersToScrape().slice();
 });
 
-casper.then(function() {
-    casper.echo("SCRAPING...\n")
-});
-
 casper.then(function () {
-    printScrapeDetails();
-});
+    if (casper.cli.has('numItems')) { 
+        try {
+            var numItems = parseInt(casper.cli.get('numItems'));
+            NUM_ITEMS = numItems > 0 ? numItems : NUM_ITEMS;
+        } catch (e) {
+            casper.log(e);
+        }
+    }
+})
 
 casper.then(function() {
     configureSortFilters();
@@ -56,8 +63,13 @@ casper.then(function () {
     configureDesignerFilters();
 });
 
+casper.then(function() {
+    casper.echo("SCRAPING...\n")
+});
+
 casper.then(function () {
-    loadFeed(NUMSCROLLS);
+    printScrapeDetails();
+    loadFeedItems(NUM_ITEMS);
 });
 
 casper.then(function () {
@@ -70,19 +82,31 @@ casper.then(function () {
 
     fs.write('log.json', JSON.stringify(this.result.log));
     this.echo('\nFINISHED!');
-    console.log(this.getElementInfo('.drop-down-toggle h3.selected').text)
+    console.log('Number of feed items scraped: ', numFeedItems());
     // printMarketFilterDetails();
 });
 
 casper.run();
 
-function loadFeed (numScrolls) {
-    casper.repeat(numScrolls, function () {
+function numFeedItems() {
+    var result = casper.evaluate(function() {
+        var feedItems = $("div.feed-item");
+        return feedItems.length;
+    });
+
+    return result;
+}
+
+function loadFeedItems (numItems) {
+    casper.echo('Num items scraped: ' + numFeedItems());
+    casper.then(function () {
         casper.scrollToBottom();
         casper.wait(1000, function () {
-            casper.log('SCROLL: ' + ++scrollNum);
-        });
-    })
+            if (numFeedItems() < numItems) {
+                loadFeedItems(numItems);
+            }
+        })
+    });
 }
 
 function configureDesignerFilters() {
