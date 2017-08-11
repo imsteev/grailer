@@ -1,10 +1,8 @@
 /* ---------------------------------------------------------------------------*/
 var fs = require('fs');
-var casper = require('casper').create({
-    logLevel: 'debug'
-});
+var casper = require('casper').create();
 
-var NUM_ITEMS = 1000
+var NUM_ITEMS = 0
 
 var MARKETS = ['grails', 'hype', 'core']
 
@@ -44,17 +42,6 @@ casper.start('https://grailed.com/', function() {
     DESIGNERS_TO_SCRAPE = getDesignersToScrape().slice();
 });
 
-casper.then(function () {
-    if (casper.cli.has('numItems')) { 
-        try {
-            var numItems = parseInt(casper.cli.get('numItems'));
-            NUM_ITEMS = numItems > 0 ? numItems : NUM_ITEMS;
-        } catch (e) {
-            casper.log(e);
-        }
-    }
-})
-
 casper.then(function() {
     configureSortFilters();
 });
@@ -64,8 +51,30 @@ casper.then(function() {
 });
 
 casper.then(function () {
+    if (casper.cli.has('numItems')) { 
+        try {
+            var numItems = parseInt(casper.cli.get('numItems'));
+            NUM_ITEMS = numItems > 0 ? numItems : NUM_ITEMS;
+        } catch (e) {
+            casper.log(e);
+        }
+    }
+});
+
+casper.then(function () {
     configureDesignerFilters();
 });
+
+casper.then(function () {
+    if (NUM_ITEMS !== 0) {
+        return
+    }
+
+    MARKETS_TO_SCRAPE.forEach(function(marketName) {
+        NUM_ITEMS += getMarketItemCount(marketName)
+        casper.wait(500);
+    })
+})
 
 casper.then(function() {
     casper.echo("SCRAPING...\n")
@@ -104,12 +113,13 @@ function numFeedItems() {
 function loadFeedItems (numItems) {
     if (!!prevFeedItemCount && prevFeedItemCount == numFeedItems()) {
         TRIES++;
-        casper.echo('Trying to load more items #: ' + TRIES)
+        casper.echo('Trying to load more items (#' + TRIES + ')')
     } else {
         prevFeedItemCount = numFeedItems();
+        casper.echo('Num items scraped: ' + prevFeedItemCount);
         TRIES = 0;
     }
-    casper.echo('Num items scraped: ' + numFeedItems());
+
     casper.then(function () {
         casper.scrollToBottom();
         casper.wait(1000, function () {
@@ -199,6 +209,19 @@ function setMarketFilterNotActive(marketName) {
         clickMarketFilter(marketName);
     }
 }
+
+function getMarketItemCount(marketName) {
+    var marketIndex = { 
+        grails: 1,
+        hype: 2,
+        core: 3
+    }
+    var index = marketIndex[marketName]
+
+    var selector = MARKET_FILTER_SELECTOR[marketName] + ' .sub-title.small';
+    require('utils').dump(casper.getElementInfo(selector).text)
+    return parseInt(casper.getElementInfo(selector).text);
+}
 /* ---------------------------------------------------------------------------*/
 
 function getDesignerSelector(index) {
@@ -261,4 +284,5 @@ function printScrapeDetails() {
     }
 
     casper.echo("  CATEGORIES: ALL");
+    casper.echo("  NUM ITEMS: " + NUM_ITEMS)
 }
