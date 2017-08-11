@@ -28,8 +28,12 @@ var DESIGNER_SEARCH_LIST_SELECTOR = '.designer-search-wrapper .designer-list';
 var MARKETS_TO_SCRAPE = [] /* By default, only grails is selected */
 var DESIGNERS_TO_SCRAPE = [] /* if empty, scrape all designers */
 var CATEGORIES_TO_SCRAPE = [] /* if empty, scrape all categories */
+
+var TRIES = 0
+var TRY_SCROLL_LIMIT = 10
 /* ---------------------------------------------------------------------------*/
 var scrollNum = 0
+var prevFeedItemCount = null
 
 // process.on('SIGINT', function () {
 //     console.log('num items before interrupt: ' + numFeedItems());
@@ -98,12 +102,21 @@ function numFeedItems() {
 }
 
 function loadFeedItems (numItems) {
+    if (!!prevFeedItemCount && prevFeedItemCount == numFeedItems()) {
+        TRIES++;
+        casper.echo('Trying to load more items #: ' + TRIES)
+    } else {
+        prevFeedItemCount = numFeedItems();
+        TRIES = 0;
+    }
     casper.echo('Num items scraped: ' + numFeedItems());
     casper.then(function () {
         casper.scrollToBottom();
         casper.wait(1000, function () {
-            if (numFeedItems() < numItems) {
+            if (numFeedItems() < numItems && TRIES < TRY_SCROLL_LIMIT) {
                 loadFeedItems(numItems);
+            } else {
+                return;
             }
         })
     });
