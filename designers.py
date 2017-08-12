@@ -74,21 +74,21 @@ class Grailed(object):
         pass
 
     def _clean_collab_name(self,designer_name):
+        # chr(215) is encoding for multiply sign '×', the character that Grailed uses to denote collaborations
         cleaned = [chr(215) if s == 'x' else s for s in designer_name.split(' ')]
         return ' '.join(cleaned)
 
+    def summary(self):
+        designers_to_groups = G.df.groupby('designer').indices
+        for designer_name in designers_to_groups:
+            print("[%s]" % designer_name)
+            print("  Average price: %0.2f" % G.get_designer_avg_price(designer_name))
+            print("  Max price: %0.2f" % G.get_designer_max_price(designer_name))
+            print("  Min price: %0.2f" % G.get_designer_min_price(designer_name))
+            print("  Total items: %d" % len(G.get_designer_group(designer_name)))
+            print()
+
 G = Grailed('./feed_items.csv')
-
-designer_to_group = G.df.groupby('designer').indices
-for designer_name in designer_to_group:
-    print("%s : %0.2f" % (designer_name, G.get_designer_avg_price(designer_name)))
-
-print("Total items scraped: %d" % G.df.shape[0])
-print("Average price of all items scraped: $%0.2f" % G.df['price'].mean())
-
-class designerSummary(object):
-    pass
-
 
 
 
