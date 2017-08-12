@@ -236,12 +236,12 @@ function getMarketsToScrape() {
     if (casper.cli.has('markets')) {
         var markets = casper.cli.get('markets').split(',');
 
-        markets.filter(function (market) {
-            return market.trim().length > 0;
+        markets = markets.map(function (market) {
+            return market.trim();
         });
 
-        markets.map(function (market) {
-            return market.toLowerCase();
+        markets = markets.filter(function (market) {
+            return market.length > 0;
         });
 
         return markets;
@@ -255,12 +255,12 @@ function getDesignersToScrape() {
     if (casper.cli.has('designers')) {
         var designers = casper.cli.get('designers').split(',');
 
-        designers.filter(function (designer) {
-            return designer.trim().length > 0;
+        designers = designers.map(function (designer) {
+            return designer.trim();
         });
 
-        designers.map(function (designer) {
-            return designer.toLowerCase();
+        designers = designers.map(function (designer) {
+            return designer.length > 0;
         });
 
         return designers;
