@@ -1,4 +1,6 @@
 import pandas as pd
+pd.set_option('display.expand_frame_repr', False)
+pd.set_option('display.max_columns', 10)
 
 class Grailed(object):
     def __init__(self, feed_csv_path):
@@ -16,6 +18,8 @@ class Grailed(object):
         return df
 
     def get_designer_avg_price(self, designer_name, with_collabs=False):
+        designer_name = self._clean_collab_name(designer_name)
+
         if with_collabs:
             designer_group = self.get_designer_group_with_collabs(designer_name)
         else:
@@ -24,6 +28,8 @@ class Grailed(object):
         return designer_group['price'].mean()
 
     def get_designer_min_price(self, designer_name, with_collabs=False):
+        designer_name = self._clean_collab_name(designer_name)
+
         if with_collabs:
             designer_group = self.get_designer_group_with_collabs(designer_name)
         else:
@@ -32,6 +38,8 @@ class Grailed(object):
         return designer_group['price'].min()
     
     def get_designer_max_price(self, designer_name, with_collabs=False):
+        designer_name = self._clean_collab_name(designer_name)
+
         if with_collabs:
             designer_group = self.get_designer_group_with_collabs(designer_name)
         else:
@@ -40,11 +48,15 @@ class Grailed(object):
         return designer_group['price'].max()
 
     def get_designer_group(self, designer_name):
+        designer_name = self._clean_collab_name(designer_name)
+
         groups = self.df.groupby('designer')
 
         return groups.get_group(designer_name)
 
     def get_designer_group_with_collabs(self, designer_name):
+        designer_name = self._clean_collab_name(designer_name)
+
         df = self.df.copy()
 
         def extract_collab_designer(designer):
@@ -61,11 +73,15 @@ class Grailed(object):
     def get_number_of_items_marked_down(self):
         pass
 
+    def _clean_collab_name(self,designer_name):
+        cleaned = [chr(215) if s == 'x' else s for s in designer_name.split(' ')]
+        return ' '.join(cleaned)
+
 G = Grailed('./feed_items.csv')
 
-# designer_to_group = G.df.groupby('designer').indices
-# for designer_name in designer_to_group:
-#     print("%s : %0.2f" % (designer_name, G.get_designer_avg_price(designer_name)))
+designer_to_group = G.df.groupby('designer').indices
+for designer_name in designer_to_group:
+    print("%s : %0.2f" % (designer_name, G.get_designer_avg_price(designer_name)))
 
 print("Total items scraped: %d" % G.df.shape[0])
 print("Average price of all items scraped: $%0.2f" % G.df['price'].mean())

@@ -104,7 +104,7 @@ casper.then(function () {
     // fs.write('log.json', JSON.stringify(this.result.log));
     this.echo('\n[FINISHED]');
 
-    // printMarketFilterDetails();
+    printMarketFilterDetails();
 });
 
 casper.run();
