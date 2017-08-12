@@ -17,33 +17,24 @@ class Grailed(object):
 
         return df
 
-    def get_designer_avg_price(self, designer_name, with_collabs=False):
+    def get_designer_avg_price(self, designer_name):
         designer_name = self._clean_collab_name(designer_name)
 
-        if with_collabs:
-            designer_group = self.get_designer_group_with_collabs(designer_name)
-        else:
-            designer_group = self.get_designer_group(designer_name)
+        designer_group = self.get_designer_group(designer_name)
 
         return designer_group['price'].mean()
 
-    def get_designer_min_price(self, designer_name, with_collabs=False):
+    def get_designer_min_price(self, designer_name):
         designer_name = self._clean_collab_name(designer_name)
 
-        if with_collabs:
-            designer_group = self.get_designer_group_with_collabs(designer_name)
-        else:
-            designer_group = self.get_designer_group(designer_name)
+        designer_group = self.get_designer_group(designer_name)
 
         return designer_group['price'].min()
     
-    def get_designer_max_price(self, designer_name, with_collabs=False):
+    def get_designer_max_price(self, designer_name):
         designer_name = self._clean_collab_name(designer_name)
 
-        if with_collabs:
-            designer_group = self.get_designer_group_with_collabs(designer_name)
-        else:
-            designer_group = self.get_designer_group(designer_name)
+        designer_group = self.get_designer_group(designer_name)
 
         return designer_group['price'].max()
 
