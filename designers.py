@@ -63,6 +63,9 @@ class Grailed(object):
     def get_number_of_items_marked_down(self):
         pass
 
+    def is_collab(self,designer_name):
+        return chr(215) in designer_name
+
     def _clean_collab_name(self,designer_name):
         # chr(215) is encoding for multiply sign '×', the character that Grailed uses to denote collaborations
         cleaned = [chr(215) if s == 'x' else s for s in designer_name.split(' ')]
@@ -70,8 +73,10 @@ class Grailed(object):
 
     def summary(self, with_collabs=False):
         designers_to_groups = G.df.groupby('designer').indices
-        non_collabs = list(filter(lambda name: chr(215) not in name, designers_to_groups))
-        collabs = list(filter(lambda name: chr(215) in name, designers_to_groups))
+        non_collabs = [name for name in designers_to_groups if not self.is_collab(name)]
+        collabs = [name for name in designers_to_groups if self.is_collab(name)]
+        # non_collabs = list(filter(lambda name: not self.is_collab(name), designers_to_groups))
+        # collabs = list(filter(self.is_collab, designers_to_groups))
 
         designers_with_collabs = { designer : [] for designer in non_collabs }
 
