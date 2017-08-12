@@ -69,9 +69,6 @@ casper.then(function () {
     if (NUM_ITEMS !== 0 || DESIGNERS_TO_SCRAPE.length === 0) {
         return
     }
-    casper.then(function () {
-
-    })
     MARKETS_TO_SCRAPE.forEach(function(marketName) {
         NUM_ITEMS += getMarketItemCount(marketName)
         casper.wait(500);
@@ -162,11 +159,9 @@ function configureMarketFilters() {
 
 // Support 'low-to-high' filter, and 'high-to-low' filter.
 function configureSortFilters() {
-    if (casper.cli.has('low')) {
-        clickSortFilter('low');
-    }
-    else if (casper.cli.has('high')) {
-        clickSortFilter('high');
+    if (casper.cli.has('sort')) {
+        var sortFilterName = casper.cli.get('sort');
+        clickSortFilter(sortFilterName);
     }
 }
 
@@ -185,8 +180,10 @@ function clickDesignerFilter(designer) {
 }
 
 function clickMarketFilter(marketName) {
-    casper.click(MARKET_FILTER_SELECTOR[marketName]);
-    casper.wait(1000);
+    if (marketName in MARKET_FILTER_SELECTOR) {
+        casper.click(MARKET_FILTER_SELECTOR[marketName]);
+        casper.wait(1000);
+    }
 }
 
 function clickSortFilter(sortName) {
@@ -236,15 +233,22 @@ function getDesignerSelector(index) {
 }
 
 function getMarketsToScrape() {
-    var result = [];
+    if (casper.cli.has('markets')) {
+        var markets = casper.cli.get('markets').split(',');
 
-    MARKETS.forEach(function (marketName) {
-        if (casper.cli.has(marketName)) {
-            result.push(marketName);
-        }
-    })
+        markets.filter(function (market) {
+            return market.trim().length > 0;
+        });
 
-    return result.length == 0 ? MARKETS.slice() : result;
+        markets.map(function (market) {
+            return market.toLowerCase();
+        });
+
+        return markets;
+    }
+
+    // Empty represents all designers
+    return MARKETS.slice();
 }
 
 function getDesignersToScrape() {
