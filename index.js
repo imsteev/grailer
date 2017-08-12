@@ -28,7 +28,7 @@ var DESIGNERS_TO_SCRAPE = [] /* if empty, scrape all designers */
 var CATEGORIES_TO_SCRAPE = [] /* if empty, scrape all categories */
 
 var TRIES = 0
-var TRY_SCROLL_LIMIT = 10
+var TRY_SCROLL_LIMIT = 20
 /* ---------------------------------------------------------------------------*/
 var scrollNum = 0
 var prevFeedItemCount = null
@@ -66,24 +66,33 @@ casper.then(function () {
 });
 
 casper.then(function () {
-    if (NUM_ITEMS !== 0) {
+    if (NUM_ITEMS !== 0 || DESIGNERS_TO_SCRAPE.length === 0) {
         return
     }
+    casper.then(function () {
 
+    })
     MARKETS_TO_SCRAPE.forEach(function(marketName) {
         NUM_ITEMS += getMarketItemCount(marketName)
         casper.wait(500);
     })
 })
 
-casper.then(function() {
-    casper.echo("SCRAPING...\n")
+casper.then(function () {
+    printFilterDetails();
 });
 
-casper.then(function () {
-    printScrapeDetails();
+casper.then(function() {
+    casper.echo("[SCRAPE DETAILS]\n");
+})
+
+casper.then(function() {
     loadFeedItems(NUM_ITEMS);
 });
+
+// casper.then(function() {
+//     casper.echo("\n");
+// })
 
 casper.then(function () {
     var html = this.getHTML('.feed', true);
@@ -91,11 +100,10 @@ casper.then(function () {
 });
 
 casper.then(function () {
-    var log = require('utils').dump(this.result.log);
+    // var log = require('utils').dump(this.result.log);
+    // fs.write('log.json', JSON.stringify(this.result.log));
+    this.echo('\n[FINISHED]');
 
-    fs.write('log.json', JSON.stringify(this.result.log));
-    this.echo('\nFINISHED!');
-    console.log('Number of feed items scraped: ', numFeedItems());
     // printMarketFilterDetails();
 });
 
@@ -113,10 +121,10 @@ function numFeedItems() {
 function loadFeedItems (numItems) {
     if (!!prevFeedItemCount && prevFeedItemCount == numFeedItems()) {
         TRIES++;
-        casper.echo('Trying to load more items (#' + TRIES + ')')
+        casper.echo('  Trying to load more (#' + TRIES + ')')
     } else {
         prevFeedItemCount = numFeedItems();
-        casper.echo('Num items scraped: ' + prevFeedItemCount);
+        casper.echo('  TOTAL ITEMS SCRAPED: ' + prevFeedItemCount);
         TRIES = 0;
     }
 
@@ -165,11 +173,11 @@ function configureSortFilters() {
 /* -----------------------------CLICKS----------------------------------------*/
 function clickDesignerFilter(designer) {
     casper.sendKeys(DESIGNER_SEARCH_SELECTOR, designer, { reset : true });
-    casper.wait(1000, function () {
+    casper.wait(3000, function () {
         try {
             casper.click(DESIGNER_SEARCH_LIST_SELECTOR + ' .designer .active-indicator:nth-child(1)');
             casper.log('SUCCESSFULLY SELECTED DESIGNER: ' + designer.toUpperCase());
-            casper.wait(1000);
+            casper.wait(3000);
         } catch(e) {
             casper.log('FAILED TO SELECT DESIGNER: ' + designer.toUpperCase());
         }
@@ -219,7 +227,6 @@ function getMarketItemCount(marketName) {
     var index = marketIndex[marketName]
 
     var selector = MARKET_FILTER_SELECTOR[marketName] + ' .sub-title.small';
-    require('utils').dump(casper.getElementInfo(selector).text)
     return parseInt(casper.getElementInfo(selector).text);
 }
 /* ---------------------------------------------------------------------------*/
@@ -270,7 +277,8 @@ function printMarketFilterDetails() {
     require('utils').dump(casper.getElementInfo('.strata-wrapper .active-indicator:nth-child(3)')['attributes']);
 }
 
-function printScrapeDetails() {
+function printFilterDetails() {
+    casper.echo("[FILTERS]\n");
     if (MARKETS_TO_SCRAPE.length === 0) {
         casper.echo("  MARKETS: ALL");
     } else {
@@ -284,5 +292,5 @@ function printScrapeDetails() {
     }
 
     casper.echo("  CATEGORIES: ALL");
-    casper.echo("  NUM ITEMS: " + NUM_ITEMS)
+    casper.echo("  ITEM LIMIT: " + NUM_ITEMS + "\n")
 }
