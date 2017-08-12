@@ -78,9 +78,12 @@ class Grailed(object):
         cleaned = [chr(215) if s == 'x' else s for s in designer_name.split(' ')]
         return ' '.join(cleaned)
 
-    def summary(self):
+    def summary(self, with_collabs=False):
         designers_to_groups = G.df.groupby('designer').indices
         for designer_name in designers_to_groups:
+            if not with_collabs and chr(215) in designer_name:
+                continue
+
             print("[%s]" % designer_name)
             print("  Average price: %0.2f" % G.get_designer_avg_price(designer_name))
             print("  Max price: %0.2f" % G.get_designer_max_price(designer_name))
