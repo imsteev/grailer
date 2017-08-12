@@ -75,8 +75,6 @@ class Grailed(object):
         designers_to_groups = G.df.groupby('designer').indices
         non_collabs = [name for name in designers_to_groups if not self.is_collab(name)]
         collabs = [name for name in designers_to_groups if self.is_collab(name)]
-        # non_collabs = list(filter(lambda name: not self.is_collab(name), designers_to_groups))
-        # collabs = list(filter(self.is_collab, designers_to_groups))
 
         designers_with_collabs = { designer : [] for designer in non_collabs }
 
@@ -88,19 +86,19 @@ class Grailed(object):
 
         for designer_name in non_collabs:
             self.print_designer_summary(designer_name)
-
+            print()
             if with_collabs:
                 designer_collabs = designers_with_collabs[designer_name]
                 for designer_collab in designer_collabs:
                     self.print_designer_summary(designer_collab)
+                    print()
 
     def print_designer_summary(self, designer_name):
-            print("[%s]" % designer_name)
-            print("  Average price: %0.2f" % G.get_designer_avg_price(designer_name))
-            print("  Max price: %0.2f" % G.get_designer_max_price(designer_name))
-            print("  Min price: %0.2f" % G.get_designer_min_price(designer_name))
-            print("  Total items: %d" % len(G.get_designer_group(designer_name)))
-            print()
+        print("[%s]" % designer_name)
+        print("  Average price: %0.2f" % G.get_designer_avg_price(designer_name))
+        print("  Max price: %0.2f" % G.get_designer_max_price(designer_name))
+        print("  Min price: %0.2f" % G.get_designer_min_price(designer_name))
+        print("  Total items: %d" % len(G.get_designer_group(designer_name)))
 
 G = Grailed('./feed_items.csv')
 
