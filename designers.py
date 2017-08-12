@@ -79,10 +79,26 @@ class Grailed(object):
 
     def summary(self, with_collabs=False):
         designers_to_groups = G.df.groupby('designer').indices
-        for designer_name in designers_to_groups:
-            if not with_collabs and chr(215) in designer_name:
-                continue
+        non_collabs = list(filter(lambda name: chr(215) not in name, designers_to_groups))
+        collabs = list(filter(lambda name: chr(215) in name, designers_to_groups))
 
+        designers_with_collabs = { designer : [] for designer in non_collabs }
+
+        for collab_name in collabs:
+            for non_collab in non_collabs:
+                if non_collab in collab_name:
+                    designers_with_collabs[non_collab].append(collab_name)
+        
+
+        for designer_name in non_collabs:
+            self.print_designer_summary(designer_name)
+
+            if with_collabs:
+                designer_collabs = designers_with_collabs[designer_name]
+                for designer_collab in designer_collabs:
+                    self.print_designer_summary(designer_collab)
+
+    def print_designer_summary(self, designer_name):
             print("[%s]" % designer_name)
             print("  Average price: %0.2f" % G.get_designer_avg_price(designer_name))
             print("  Max price: %0.2f" % G.get_designer_max_price(designer_name))
