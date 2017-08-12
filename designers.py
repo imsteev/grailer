@@ -54,7 +54,7 @@ class Grailed(object):
 
         return groups.get_group(designer_name)
 
-    def get_designer_group_with_collabs(self, designer_name):
+    def combine_designer_with_collabs(self, designer_name):
         designer_name = self._clean_collab_name(designer_name)
 
         df = self.df.copy()
@@ -64,8 +64,7 @@ class Grailed(object):
                 return designer_name
             return designer
 
-        df['designer'] = df['designer'].map(extract_collab_designer)
-        return df.groupby('designer').get_group(designer_name)
+        self.df['designer'] = df['designer'].map(extract_collab_designer)
 
     def get_number_of_items_scraped(self):
         return self.df.shape[0]
