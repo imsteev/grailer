@@ -43,7 +43,7 @@ casper.start('https://grailed.com/', function() {
 });
 
 casper.then(function() {
-    configureSortFilters();
+    configureSortFilter();
 });
 
 casper.then(function() {
@@ -86,10 +86,6 @@ casper.then(function() {
 casper.then(function() {
     loadFeedItems(NUM_ITEMS);
 });
-
-// casper.then(function() {
-//     casper.echo("\n");
-// })
 
 casper.then(function () {
     var html = this.getHTML('.feed', true);
@@ -157,14 +153,6 @@ function configureMarketFilters() {
     });
 }
 
-// Support 'low-to-high' filter, and 'high-to-low' filter.
-function configureSortFilters() {
-    if (casper.cli.has('sort')) {
-        var sortFilterName = casper.cli.get('sort');
-        clickSortFilter(sortFilterName);
-    }
-}
-
 /* -----------------------------CLICKS----------------------------------------*/
 function clickDesignerFilter(designer) {
     casper.sendKeys(DESIGNER_SEARCH_SELECTOR, designer, { reset : true });
@@ -174,25 +162,22 @@ function clickDesignerFilter(designer) {
             casper.log('SUCCESSFULLY SELECTED DESIGNER: ' + designer.toUpperCase());
             casper.wait(3000);
         } catch(e) {
+            casper.echo(e)  
             casper.log('FAILED TO SELECT DESIGNER: ' + designer.toUpperCase());
         }
     });
 }
 
 function clickMarketFilter(marketName) {
-    if (marketName in MARKET_FILTER_SELECTOR) {
-        casper.click(MARKET_FILTER_SELECTOR[marketName]);
-        casper.wait(1000);
-    }
+    casper.click(MARKET_FILTER_SELECTOR[marketName]);
+    casper.wait(1000);
 }
 
 function clickSortFilter(sortName) {
-    if (sortName in SORT_FILTER_SELECTOR) {
-        casper.click('h3.drop-down-title');
-        casper.click(SORT_FILTER_SELECTOR[sortName]);
-        casper.log('SUCCESSFULLY SELECTED SORT FILTER: ' + sortName.toUpperCase());
-        casper.wait(1000);
-    }
+    casper.click('h3.drop-down-title');
+    casper.click(SORT_FILTER_SELECTOR[sortName]);
+    casper.log('SUCCESSFULLY SELECTED SORT FILTER: ' + sortName.toUpperCase());
+    casper.wait(1000); 
 }
 
 //TODO: refactor to a more general function for active-indicator's
@@ -241,13 +226,12 @@ function getMarketsToScrape() {
         });
 
         markets = markets.filter(function (market) {
-            return market.length > 0;
+            return market.length > 0 && market in MARKET_FILTER_SELECTOR;
         });
 
         return markets;
     }
 
-    // Empty represents all designers
     return MARKETS.slice();
 }
 
@@ -259,7 +243,7 @@ function getDesignersToScrape() {
             return designer.trim();
         });
 
-        designers = designers.map(function (designer) {
+        designers = designers.filter(function (designer) {
             return designer.length > 0;
         });
 
@@ -268,6 +252,17 @@ function getDesignersToScrape() {
 
     // Empty represents all designers
     return [];
+}
+
+// Support 'low-to-high' filter, and 'high-to-low' filter.
+function configureSortFilter() {
+    if (casper.cli.has('sort')) {
+        var sortFilterName = casper.cli.get('sort');
+
+        if (sortFilterName in SORT_FILTER_SELECTOR) {
+            clickSortFilter(sortFilterName);
+        }
+    }
 }
 
 function printMarketFilterDetails() {

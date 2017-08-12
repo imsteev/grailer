@@ -18,7 +18,7 @@ class FeedParser(object):
         if self.soup is None:
             print("no soup available")
             return
-        return self.soup.find_all('div', 'feed-item')
+        return self.soup.find_all('div', {'class': 'feed-item'})
 
     def create_csv(self):
         fields_to_write = ['title', 'designer', 'size', 'price', 'original_price', 'age']
@@ -29,7 +29,7 @@ class FeedParser(object):
             for feed_item_html in self.get_feed_items():
                 try:
                     item = self.extract_feed_item_fields(feed_item_html)
-                    writer.writerow(map(lambda field_name: item[field_name], fields_to_write))
+                    writer.writerow([item[field_name] for field_name in fields_to_write])
                 except:
                     print("Something wrong happened writing data")
     
