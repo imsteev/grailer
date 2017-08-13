@@ -87,6 +87,10 @@ casper.then(function() {
     loadFeedItems(NUM_ITEMS);
 });
 
+casper.then(function() {
+    casper.echo("  TOTAL ITEMS SCRAPED: " + numFeedItems());
+})
+
 casper.then(function () {
     var html = this.getHTML('.feed', true);
     fs.write('feed.html', html)
@@ -117,7 +121,7 @@ function loadFeedItems (numItems) {
         casper.echo('  Trying to load more (#' + TRIES + ')')
     } else {
         prevFeedItemCount = numFeedItems();
-        casper.echo('  TOTAL ITEMS SCRAPED: ' + prevFeedItemCount);
+        casper.echo('  ITEMS SCRAPED: ' + prevFeedItemCount);
         TRIES = 0;
     }
 
