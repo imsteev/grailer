@@ -26,7 +26,29 @@ class Grailed(object):
             df['price'] = df['price'].map(lambda price_str: int(price_str[1:]))
             df['original_price'] = df['original_price'].map(lambda price_str: int(price_str[1:]))
             df['designer'] = df['designer'].map(lambda designer_str: designer_str.lower())
+            
+            def string_to_seconds(time_desc):
+                time_denoms = {'second' : 1 / 24 / 60 / 60, 
+                               'minute': 1 / 24 / 60, 
+                               'hour': 1 / 24,
+                               'day' : 1,
+                               'week': 7,
+                               'month': 30,
+                               'year': 365
+                }
 
+                time_denoms['min'] = time_denoms['minute']
+
+                desc = time_desc.split(' ')
+                num, denom = desc[0], desc[1]
+
+                if denom[-1] == 's':
+                    denom = denom[:len(denom)-1]
+
+                return int(num) * time_denoms[denom]
+
+            df['age'] = df['age'].map(string_to_seconds)
+                
         return df
 
     def get_designer_avg_price(self, designer_name):
