@@ -22,33 +22,34 @@ class Grailed(object):
         with open(feed_csv_path, 'r') as f:
             df = pd.read_csv(f, names=['title', 'designer', 'size', 'price', 'original_price', 'age', 'bumped'])
         
-            # Remove dollar sign and convert to int
-            df['price'] = df['price'].map(lambda price_str: int(price_str[1:]))
-            df['original_price'] = df['original_price'].map(lambda price_str: int(price_str[1:]))
-            df['designer'] = df['designer'].map(lambda designer_str: designer_str.lower())
-            
-            def string_to_seconds(time_desc):
-                time_denoms = {'second' : 1 / 24 / 60 / 60, 
-                               'minute': 1 / 24 / 60, 
-                               'hour': 1 / 24,
-                               'day' : 1,
-                               'week': 7,
-                               'month': 30,
-                               'year': 365
-                }
+        # Remove dollar sign and convert to int
+        df['price'] = df['price'].map(lambda price_str: int(price_str[1:]))
+        df['original_price'] = df['original_price'].map(lambda price_str: int(price_str[1:]))
+        df['designer'] = df['designer'].map(lambda designer_str: designer_str.lower())
+        
+        def string_to_seconds(time_desc):
+            time_denoms = {'second' : 1 / 24 / 60 / 60, 
+                            'minute': 1 / 24 / 60, 
+                            'hour': 1 / 24,
+                            'day' : 1,
+                            'week': 7,
+                            'month': 30,
+                            'year': 365
+            }
 
-                time_denoms['min'] = time_denoms['minute']
+            time_denoms['min'] = time_denoms['minute']
 
-                desc = time_desc.split(' ')
-                num, denom = desc[0], desc[1]
+            desc = time_desc.split(' ')
+            num, denom = desc[0], desc[1]
 
-                if denom[-1] == 's':
-                    denom = denom[:len(denom)-1]
+            if denom[-1] == 's':
+                denom = denom[:len(denom)-1]
 
-                return int(num) * time_denoms[denom]
+            return int(num) * time_denoms[denom]
 
-            df['age'] = df['age'].map(string_to_seconds)
-                
+        df['age'] = df['age'].map(string_to_seconds)
+        df['bumped'] = df['bumped'].map(lambda b: b if pd.isnull(b) else string_to_seconds(b))
+        
         return df
 
     def get_designer_avg_price(self, designer_name):
@@ -75,6 +76,11 @@ class Grailed(object):
         designer_group = self.get_designer_group(designer_name)
 
         return designer_group['age'].mean()
+
+    def get_designer_avg_bumped(self,designer_name):
+        designer_group = self.get_designer_group(designer_name)
+
+        return designer_group['bumped'].mean()
 
     def combine_designer_with_collabs(self, designer_name):
         designer_name = self._clean_collab_name(designer_name)
@@ -103,7 +109,8 @@ class Grailed(object):
             'min': G.get_designer_min_price(designer_name),
             'num_items': len(G.get_designer_group(designer_name)),
             'num_marked_down': G.get_num_marked_down(designer_name),
-            'avg_age': G.get_designer_avg_age(designer_name)
+            'avg_age': G.get_designer_avg_age(designer_name),
+            'bumped': G.get_designer_avg_bumped(designer_name)
         }
         summary['per_marked_down'] = summary['num_marked_down'] / summary['num_items']
 
