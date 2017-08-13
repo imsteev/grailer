@@ -11,6 +11,13 @@ class Grailed(object):
         self.non_collabs = [name for name in designers_to_groups if not self.is_collab(name)]
         self.collabs = [name for name in designers_to_groups if self.is_collab(name)]
 
+        self.designers_with_collabs = { designer : [] for designer in self.non_collabs }
+
+        for collab_name in self.collabs:
+            for non_collab in self.non_collabs:
+                if non_collab in collab_name:
+                    self.designers_with_collabs[non_collab].append(collab_name)
+
     def load_df_from_csv(self, feed_csv_path):
         with open(feed_csv_path, 'r') as f:
             df = pd.read_csv(f, names=['title', 'designer', 'size', 'price', 'original_price', 'age'])
@@ -71,39 +78,48 @@ class Grailed(object):
     def is_collab(self,designer_name):
         return chr(215) in designer_name
 
+    def designer_summary(self, designer_name):
+        summary = { 
+            'max': G.get_designer_max_price(designer_name),
+            'avg': G.get_designer_avg_price(designer_name),
+            'min': G.get_designer_min_price(designer_name),
+            'num_items': len(G.get_designer_group(designer_name)),
+            'num_marked_down': G.get_num_marked_down(designer_name),
+        }
+        summary['per_marked_down'] = summary['num_marked_down'] / summary['num_items']
+
+        if not self.is_collab(designer_name):
+            summary['num_collabs'] = len(self.designers_with_collabs[designer_name])
+
+        return summary 
+
+    def print_summary(self, with_collabs=False):        
+        for designer_name in self.non_collabs:
+            self.print_designer_summary(designer_name)
+
+            if with_collabs:
+                for designer_collab in self.designers_with_collabs[designer_name]:
+                    self.print_designer_summary(designer_collab)
+
+    def print_designer_summary(self, designer_name):
+        summary = self.designer_summary(designer_name)
+
+        print("[%s]" % designer_name)
+        print("  Max price: $%0.2f" % summary['max'])
+        print("  Avg price: $%0.2f" % summary['avg'])
+        print("  Min price: $%0.2f" % summary['min'])
+        print("  Total items: %d" % summary['num_items'])
+        print("  Items marked down: %d (%0.2f %%)" % (summary['num_marked_down'], summary['per_marked_down']))
+
+        if 'num_collabs' in summary:
+            print("  Collaborations: %d" % summary['num_collabs'])
+        
+        print()
+        
     def _clean_collab_name(self,designer_name):
         # chr(215) is encoding for multiply sign '×', the character that Grailed uses to denote collaborations
         cleaned = [chr(215) if s == 'x' else s for s in designer_name.split(' ')]
         return ' '.join(cleaned)
-
-    def summary(self, with_collabs=False):
-        designers_with_collabs = { designer : [] for designer in self.non_collabs }
-
-        for collab_name in self.collabs:
-            for non_collab in self.non_collabs:
-                if non_collab in collab_name:
-                    designers_with_collabs[non_collab].append(collab_name)
-        
-
-        for designer_name in self.non_collabs:
-            self.print_designer_summary(designer_name)
-
-            collabs_of_designer = designers_with_collabs[designer_name]
-            print("  Collaborations: %d" % len(collabs_of_designer), end="\n")
-            if with_collabs:
-                designer_collabs = designers_with_collabs[designer_name]
-                for designer_collab in designer_collabs:
-                    self.print_designer_summary(designer_collab)
-                    print()
-
-    def print_designer_summary(self, designer_name):
-        print("[%s]" % designer_name)
-        print("  Max price: $%0.2f" % G.get_designer_max_price(designer_name))
-        print("  Avg price: $%0.2f" % G.get_designer_avg_price(designer_name))
-        print("  Min price: $%0.2f" % G.get_designer_min_price(designer_name))
-        print("  Total items: %d" % len(G.get_designer_group(designer_name)))
-        print("  Items marked down: %d (%0.2f %%)" % (G.get_num_marked_down(designer_name), 100 * G.get_num_marked_down(designer_name) / len(G.get_designer_group(designer_name))))
-
 G = Grailed('./feed_items.csv')
 
 
