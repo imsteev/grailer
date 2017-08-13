@@ -20,7 +20,7 @@ class Grailed(object):
 
     def load_df_from_csv(self, feed_csv_path):
         with open(feed_csv_path, 'r') as f:
-            df = pd.read_csv(f, names=['title', 'designer', 'size', 'price', 'original_price', 'age'])
+            df = pd.read_csv(f, names=['title', 'designer', 'size', 'price', 'original_price', 'age', 'bumped'])
         
             # Remove dollar sign and convert to int
             df['price'] = df['price'].map(lambda price_str: int(price_str[1:]))

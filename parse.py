@@ -21,7 +21,7 @@ class FeedParser(object):
         return self.soup.find_all('div', {'class': 'feed-item'})
 
     def create_csv(self):
-        fields_to_write = ['title', 'designer', 'size', 'price', 'original_price', 'age']
+        fields_to_write = ['title', 'designer', 'size', 'price', 'original_price', 'age', 'bumped']
 
         with open('feed_items.csv', 'w') as csvfile:
             writer = csv.writer(csvfile)
@@ -37,7 +37,16 @@ class FeedParser(object):
         result = {}
         f = feed_item_html
 
-        result['age'] = f.find('h3', 'listing-age').text
+        listing_age = f.select('h3 > .date-ago')
+        origin = f.find('span', 'strike-through')
+
+        if len(listing_age) == 2:
+            result['age'] = listing_age[1].find('span', 'strike-through').text
+            result['bumped'] = listing_age[0].text
+        else:
+            result['age'] = listing_age[0].text
+            result['bumped'] = None
+
         result['designer'] = f.find('h3', 'listing-designer').text
         result['size'] = f.find('h3', 'listing-size').text
         result['title'] = f.find('h3', 'listing-title').text
