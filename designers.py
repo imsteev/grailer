@@ -6,6 +6,10 @@ class Grailed(object):
     def __init__(self, feed_csv_path):
         self.df = self.load_df_from_csv(feed_csv_path)
         self.groups = self.df.groupby('designer')
+        
+        designers_to_groups = self.groups.indices
+        self.non_collabs = [name for name in designers_to_groups if not self.is_collab(name)]
+        self.collabs = [name for name in designers_to_groups if self.is_collab(name)]
 
     def load_df_from_csv(self, feed_csv_path):
         with open(feed_csv_path, 'r') as f:
@@ -73,21 +77,19 @@ class Grailed(object):
         return ' '.join(cleaned)
 
     def summary(self, with_collabs=False):
-        designers_to_groups = self.groups.indices
-        non_collabs = [name for name in designers_to_groups if not self.is_collab(name)]
-        collabs = [name for name in designers_to_groups if self.is_collab(name)]
+        designers_with_collabs = { designer : [] for designer in self.non_collabs }
 
-        designers_with_collabs = { designer : [] for designer in non_collabs }
-
-        for collab_name in collabs:
-            for non_collab in non_collabs:
+        for collab_name in self.collabs:
+            for non_collab in self.non_collabs:
                 if non_collab in collab_name:
                     designers_with_collabs[non_collab].append(collab_name)
         
 
-        for designer_name in non_collabs:
+        for designer_name in self.non_collabs:
             self.print_designer_summary(designer_name)
-            print()
+
+            collabs_of_designer = designers_with_collabs[designer_name]
+            print("  Collaborations: %d" % len(collabs_of_designer), end="\n")
             if with_collabs:
                 designer_collabs = designers_with_collabs[designer_name]
                 for designer_collab in designer_collabs:
