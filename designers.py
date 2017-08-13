@@ -49,8 +49,7 @@ class Grailed(object):
             return int(num) * time_denoms[denom]
 
         df['age'] = df['age'].map(string_to_seconds)
-        df['bumped'] = df['bumped'].map(lambda b: b if pd.isnull(b) else string_to_seconds(b))
-
+        df['bumped'] = df['bumped'].map(lambda b: b if pd.isnull(b) else df['age'] - string_to_seconds(b))
         
         return df
 

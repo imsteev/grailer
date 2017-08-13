@@ -89,7 +89,7 @@ casper.then(function() {
 
 casper.then(function () {
     var html = this.getHTML('.feed', true);
-    fs.write(DESIGNERS_TO_SCRAPE[0]+ '.html', html)
+    fs.write('feed.html', html)
 });
 
 casper.then(function () {
@@ -153,7 +153,6 @@ function configureMarketFilters() {
     });
 }
 
-/* -----------------------------CLICKS----------------------------------------*/
 function clickDesignerFilter(designer) {
     casper.sendKeys(DESIGNER_SEARCH_SELECTOR, designer, { reset : true });
     casper.wait(3000, function () {
