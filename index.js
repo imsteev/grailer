@@ -22,6 +22,7 @@ var SORT_FILTER_SELECTOR = {
 
 var DESIGNER_SEARCH_SELECTOR = '.designer-search-wrapper input';
 var DESIGNER_SEARCH_LIST_SELECTOR = '.designer-search-wrapper .designer-list';
+var ACTUAL_DESIGNERS = []
 
 var MARKETS_TO_SCRAPE = [] /* By default, only grails is selected */
 var DESIGNERS_TO_SCRAPE = [] /* if empty, scrape all designers */
@@ -162,8 +163,12 @@ function clickDesignerFilter(designer) {
     casper.sendKeys(DESIGNER_SEARCH_SELECTOR, designer, { reset : true });
     casper.wait(3000, function () {
         try {
-            casper.click(DESIGNER_SEARCH_LIST_SELECTOR + ' .designer .active-indicator:nth-child(1)');
-            casper.echo('SUCCESSFULLY SELECTED DESIGNER: ' + designer.toUpperCase());
+            var selector = DESIGNER_SEARCH_LIST_SELECTOR + ' .designer .active-indicator:nth-child(1)';
+            casper.click(selector);
+            // Grailed's search auto-corrects
+            var actualDesignerText = casper.getElementInfo(selector).text.toLowerCase();
+            casper.echo('SUCCESSFULLY SELECTED DESIGNER: ' + actualDesignerText);
+            ACTUAL_DESIGNERS.push(actualDesignerText);
             casper.wait(3000);
         } catch(e) {
             casper.echo('FAILED TO SELECT DESIGNER: ' + designer.toUpperCase());
@@ -290,7 +295,7 @@ function printFilterDetails() {
     if (DESIGNERS_TO_SCRAPE.length === 0) {
         casper.echo("  DESIGNERS: ALL");
     } else {
-        casper.echo("  DESIGNERS: " + DESIGNERS_TO_SCRAPE);
+        casper.echo("  DESIGNERS: " + ACTUAL_DESIGNERS);
     }
 
     casper.echo("  CATEGORIES: ALL");

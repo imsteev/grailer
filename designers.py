@@ -105,9 +105,9 @@ class Grailed(object):
 
     def designer_summary(self, designer_name):
         summary = { 
-            'max': G.get_designer_max_price(designer_name),
-            'avg': G.get_designer_avg_price(designer_name),
-            'min': G.get_designer_min_price(designer_name),
+            'max_price': G.get_designer_max_price(designer_name),
+            'avg_price': G.get_designer_avg_price(designer_name),
+            'min_price': G.get_designer_min_price(designer_name),
             'num_items': len(G.get_designer_group(designer_name)),
             'num_marked_down': G.get_num_marked_down(designer_name),
             'avg_age': G.get_designer_avg_age(designer_name),
@@ -132,9 +132,9 @@ class Grailed(object):
         summary = self.designer_summary(designer_name)
 
         print("[%s]" % designer_name)
-        print("  Max price: $%0.2f" % summary['max'])
-        print("  Avg price: $%0.2f" % summary['avg'])
-        print("  Min price: $%0.2f" % summary['min'])
+        print("  Max price: $%0.2f" % summary['max_price'])
+        print("  Avg price: $%0.2f" % summary['avg_price'])
+        print("  Min price: $%0.2f" % summary['min_price'])
         print("  Total items: %d" % summary['num_items'])
         print("  Items marked down: %d (%0.2f %%)" % (summary['num_marked_down'], summary['per_marked_down']))
         print("  Avg age of listing: %0.2f days " % summary['avg_age'])
