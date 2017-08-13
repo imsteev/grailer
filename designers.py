@@ -28,13 +28,14 @@ class Grailed(object):
         df['designer'] = df['designer'].map(lambda designer_str: designer_str.lower())
         
         def string_to_seconds(time_desc):
-            time_denoms = {'second' : 1 / 24 / 60 / 60, 
-                            'minute': 1 / 24 / 60, 
-                            'hour': 1 / 24,
-                            'day' : 1,
-                            'week': 7,
-                            'month': 30,
-                            'year': 365
+            time_denoms = {
+                'second' : 1 / 24 / 60 / 60, 
+                'minute': 1 / 24 / 60, 
+                'hour': 1 / 24,
+                'day' : 1,
+                'week': 7,
+                'month': 30,
+                'year': 365
             }
 
             time_denoms['min'] = time_denoms['minute']
@@ -112,12 +113,12 @@ class Grailed(object):
             'avg_age': G.get_designer_avg_age(designer_name),
             'bumped': G.get_designer_avg_bumped(designer_name)
         }
-        summary['per_marked_down'] = summary['num_marked_down'] / summary['num_items']
+        summary['per_marked_down'] = 100 * summary['num_marked_down'] / summary['num_items']
 
         if not self.is_collab(designer_name):
             summary['num_collabs'] = len(self.designers_with_collabs[designer_name])
 
-        return summary 
+        return summary
 
     def print_summary(self, with_collabs=False):        
         for designer_name in self.non_collabs:

@@ -163,11 +163,10 @@ function clickDesignerFilter(designer) {
     casper.wait(3000, function () {
         try {
             casper.click(DESIGNER_SEARCH_LIST_SELECTOR + ' .designer .active-indicator:nth-child(1)');
-            casper.log('SUCCESSFULLY SELECTED DESIGNER: ' + designer.toUpperCase());
+            casper.echo('SUCCESSFULLY SELECTED DESIGNER: ' + designer.toUpperCase());
             casper.wait(3000);
         } catch(e) {
-            casper.echo(e)  
-            casper.log('FAILED TO SELECT DESIGNER: ' + designer.toUpperCase());
+            casper.echo('FAILED TO SELECT DESIGNER: ' + designer.toUpperCase());
         }
     });
 }
