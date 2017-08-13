@@ -1,4 +1,6 @@
 import pandas as pd
+from designer_summary import DesignerSummary
+
 pd.set_option('display.expand_frame_repr', False)
 pd.set_option('display.max_columns', 10)
 
@@ -49,7 +51,7 @@ class Grailed(object):
             return int(num) * time_denoms[denom]
 
         df['age'] = df['age'].map(string_to_seconds)
-        df['bumped'] = df['bumped'].map(lambda b: b if pd.isnull(b) else df['age'] - string_to_seconds(b))
+        df['bumped'] = df['age'] - df['bumped'].map(lambda b: b if pd.isnull(b) else string_to_seconds(b))
         
         return df
 
@@ -78,7 +80,7 @@ class Grailed(object):
 
         return designer_group['age'].mean()
 
-    def get_designer_avg_bumped(self,designer_name):
+    def get_avg_age_bumped(self,designer_name):
         designer_group = self.get_designer_group(designer_name)
 
         return designer_group['bumped'].mean()
@@ -100,7 +102,15 @@ class Grailed(object):
 
         return len(designer_group[designer_group['price'] != designer_group['original_price']])
 
+    def get_num_bumped(self, designer_name):
+        designer_group = self.get_designer_group(designer_name)
+
+        # count() returns number of non-nan items
+        return designer_group['bumped'].count()
+
     def is_collab(self,designer_name):
+        designer_name = self._clean_collab_name(designer_name)
+
         return chr(215) in designer_name
 
     def designer_summary(self, designer_name):
@@ -110,39 +120,25 @@ class Grailed(object):
             'min_price': G.get_designer_min_price(designer_name),
             'num_items': len(G.get_designer_group(designer_name)),
             'num_marked_down': G.get_num_marked_down(designer_name),
+            'num_bumped': G.get_num_bumped(designer_name),
             'avg_age': G.get_designer_avg_age(designer_name),
-            'bumped': G.get_designer_avg_bumped(designer_name)
+            'avg_age_bumped': G.get_avg_age_bumped(designer_name)
         }
         summary['per_marked_down'] = 100 * summary['num_marked_down'] / summary['num_items']
+        summary['per_bumped'] = 100 * summary['num_bumped'] / summary['num_items']
 
         if not self.is_collab(designer_name):
             summary['num_collabs'] = len(self.designers_with_collabs[designer_name])
 
-        return summary
+        return DesignerSummary(designer_name, summary)
 
-    def print_summary(self, with_collabs=False):        
+    def summary(self, with_collabs=False):        
         for designer_name in self.non_collabs:
-            self.print_designer_summary(designer_name)
+            self.designer_summary(designer_name).print_summary()
 
             if with_collabs:
                 for designer_collab in self.designers_with_collabs[designer_name]:
-                    self.print_designer_summary(designer_collab)
-
-    def print_designer_summary(self, designer_name):
-        summary = self.designer_summary(designer_name)
-
-        print("[%s]" % designer_name)
-        print("  Max price: $%0.2f" % summary['max_price'])
-        print("  Avg price: $%0.2f" % summary['avg_price'])
-        print("  Min price: $%0.2f" % summary['min_price'])
-        print("  Total items: %d" % summary['num_items'])
-        print("  Items marked down: %d (%0.2f %%)" % (summary['num_marked_down'], summary['per_marked_down']))
-        print("  Avg age of listing: %0.2f days " % summary['avg_age'])
-
-        if 'num_collabs' in summary:
-            print("  Collaborations: %d" % summary['num_collabs'])
-        
-        print()
+                    self.designer_summary(designer_collab).print_summary()
         
     def _clean_collab_name(self,designer_name):
         # chr(215) is encoding for multiply sign '×', the character that Grailed uses to denote collaborations
