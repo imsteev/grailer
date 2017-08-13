@@ -52,22 +52,16 @@ class Grailed(object):
         return df
 
     def get_designer_avg_price(self, designer_name):
-        designer_name = self._clean_collab_name(designer_name)
-
         designer_group = self.get_designer_group(designer_name)
 
         return designer_group['price'].mean()
 
     def get_designer_min_price(self, designer_name):
-        designer_name = self._clean_collab_name(designer_name)
-
         designer_group = self.get_designer_group(designer_name)
 
         return designer_group['price'].min()
     
     def get_designer_max_price(self, designer_name):
-        designer_name = self._clean_collab_name(designer_name)
-
         designer_group = self.get_designer_group(designer_name)
 
         return designer_group['price'].max()
@@ -76,6 +70,11 @@ class Grailed(object):
         designer_name = self._clean_collab_name(designer_name)
 
         return self.groups.get_group(designer_name)
+
+    def get_designer_avg_age(self,designer_name):
+        designer_group = self.get_designer_group(designer_name)
+
+        return designer_group['age'].mean()
 
     def combine_designer_with_collabs(self, designer_name):
         designer_name = self._clean_collab_name(designer_name)
@@ -104,6 +103,7 @@ class Grailed(object):
             'min': G.get_designer_min_price(designer_name),
             'num_items': len(G.get_designer_group(designer_name)),
             'num_marked_down': G.get_num_marked_down(designer_name),
+            'avg_age': G.get_designer_avg_age(designer_name)
         }
         summary['per_marked_down'] = summary['num_marked_down'] / summary['num_items']
 
@@ -129,6 +129,7 @@ class Grailed(object):
         print("  Min price: $%0.2f" % summary['min'])
         print("  Total items: %d" % summary['num_items'])
         print("  Items marked down: %d (%0.2f %%)" % (summary['num_marked_down'], summary['per_marked_down']))
+        print("  Avg age of listing: %0.2f days " % summary['avg_age'])
 
         if 'num_collabs' in summary:
             print("  Collaborations: %d" % summary['num_collabs'])
