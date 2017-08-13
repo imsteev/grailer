@@ -50,6 +50,7 @@ class Grailed(object):
 
         df['age'] = df['age'].map(string_to_seconds)
         df['bumped'] = df['bumped'].map(lambda b: b if pd.isnull(b) else string_to_seconds(b))
+
         
         return df
 

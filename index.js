@@ -1,8 +1,7 @@
-/* ---------------------------------------------------------------------------*/
 var fs = require('fs');
 var casper = require('casper').create();
 
-var NUM_ITEMS = 0
+var NUM_ITEMS = 5000
 
 var MARKETS = ['grails', 'hype', 'core']
 
@@ -30,13 +29,9 @@ var CATEGORIES_TO_SCRAPE = [] /* if empty, scrape all categories */
 
 var TRIES = 0
 var TRY_SCROLL_LIMIT = 20
-/* ---------------------------------------------------------------------------*/
+
 var scrollNum = 0
 var prevFeedItemCount = null
-
-// process.on('SIGINT', function () {
-//     console.log('num items before interrupt: ' + numFeedItems());
-// });
 
 casper.start('https://grailed.com/', function() {
     MARKETS_TO_SCRAPE = getMarketsToScrape().slice();
@@ -94,14 +89,14 @@ casper.then(function() {
 
 casper.then(function () {
     var html = this.getHTML('.feed', true);
-    fs.write('feed.html', html)
+    fs.write(DESIGNERS_TO_SCRAPE[0]+ '.html', html)
 });
 
 casper.then(function () {
-    // var log = require('utils').dump(this.result.log);
-    // fs.write('log.json', JSON.stringify(this.result.log));
     this.echo('\n[FINISHED]');
+});
 
+casper.then(function () {
     printMarketFilterDetails();
 });
 
@@ -171,7 +166,7 @@ function clickDesignerFilter(designer) {
             ACTUAL_DESIGNERS.push(actualDesignerText);
             casper.wait(3000);
         } catch(e) {
-            casper.echo('FAILED TO SELECT DESIGNER: ' + designer.toUpperCase());
+            casper.echo('FAILED TO SELECT DESIGNER: ' + designer);
         }
     });
 }
@@ -188,17 +183,15 @@ function clickSortFilter(sortName) {
     casper.wait(1000); 
 }
 
-//TODO: refactor to a more general function for active-indicator's
 function setMarketFilterActive(marketName) {
-    var classes = casper.getElementAttribute(MARKET_FILTER_SELECTOR[marketName], 'class')
+    var classes = casper.getElementAttribute(MARKET_FILTER_SELECTOR[marketName], 'class');
+
     var isMarketActive = classes.split(" ").indexOf('active') !== -1;
-    
     if (!isMarketActive) {
         clickMarketFilter(marketName);
     }
 }
 
-//TODO: refactor to a more general function for active-indicator's
 function setMarketFilterNotActive(marketName) {
     var classes = casper.getElementAttribute(MARKET_FILTER_SELECTOR[marketName], 'class')
     var isMarketActive = classes.split(" ").indexOf('active') !== -1;
@@ -219,7 +212,6 @@ function getMarketItemCount(marketName) {
     var selector = MARKET_FILTER_SELECTOR[marketName] + ' .sub-title.small';
     return parseInt(casper.getElementInfo(selector).text);
 }
-/* ---------------------------------------------------------------------------*/
 
 function getDesignerSelector(index) {
     return '.designers-group .active-indicator:nth-child(' + index + ')';
@@ -257,12 +249,10 @@ function getDesignersToScrape() {
 
         return designers;
     }
-
     // Empty represents all designers
     return [];
 }
 
-// Support 'low-to-high' filter, and 'high-to-low' filter.
 function configureSortFilter() {
     if (casper.cli.has('sort')) {
         var sortFilterName = casper.cli.get('sort');
