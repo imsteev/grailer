@@ -6,7 +6,7 @@ class Grailed(object):
     def __init__(self, feed_csv_path):
         self.df = self.load_df_from_csv(feed_csv_path)
         self.groups = self.df.groupby('designer')
-        
+
         designers_to_groups = self.groups.indices
         self.non_collabs = [name for name in designers_to_groups if not self.is_collab(name)]
         self.collabs = [name for name in designers_to_groups if self.is_collab(name)]
@@ -67,9 +67,6 @@ class Grailed(object):
 
         self.df['designer'] = df['designer'].map(extract_collab_designer)
 
-    def get_number_of_items_scraped(self):
-        return self.df.shape[0]
-
     def get_num_marked_down(self, designer_name):
         designer_group = self.get_designer_group(designer_name)
 
@@ -120,6 +117,7 @@ class Grailed(object):
         # chr(215) is encoding for multiply sign '×', the character that Grailed uses to denote collaborations
         cleaned = [chr(215) if s == 'x' else s for s in designer_name.split(' ')]
         return ' '.join(cleaned)
+
 G = Grailed('./feed_items.csv')
 
 
