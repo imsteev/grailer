@@ -1,11 +1,14 @@
+import sys
 import csv
 import pandas as pd
+
 from bs4 import BeautifulSoup
 
 class FeedParser(object):
-    def __init__(self, html_path):
+    def __init__(self, html_path, csv_dest):
         self.feed_html = None
         self.soup = None
+        self.dest = csv_dest
         
         self.load_feed_html(html_path)
 
@@ -23,7 +26,7 @@ class FeedParser(object):
     def create_csv(self):
         fields_to_write = ['title', 'designer', 'size', 'price', 'original_price', 'age', 'bumped']
 
-        with open('feed_items.csv', 'w') as csvfile:
+        with open(csv_dest, 'w') as csvfile:
             writer = csv.writer(csvfile)
 
             for feed_item_html in self.get_feed_items():
@@ -57,7 +60,17 @@ class FeedParser(object):
 
         return result
 
-# Move this out to a main python file   
-dp = FeedParser('./feed.html')
+if __name__ == '__main__':
+    feed_html = './feed_items.html'
+    csv_dest = './feed_items.csv'
 
-dp.create_csv()
+    for arg in sys.argv:
+        if arg.endswith('.html'):
+            feed_html = arg
+        elif arg.endswith('.csv'):
+            csv_dest = arg
+    
+
+    dp = FeedParser(feed_html, csv_dest)
+    
+    dp.create_csv()
