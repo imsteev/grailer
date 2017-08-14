@@ -16,10 +16,11 @@ Install CasperJS and add the binary to your PATH. For parsing and analysis, I re
 There are three files to be aware of:
 
   - `index.js` is responsible for the browser automation and scraping. At the end of the job, it will write the item feed's html to a file (`./feed.html` by default).
-  - `parse.py` parses and extracts the following fields for each field item and saves those results in CSV format (`./feed.csv` by default):
-      - __price, original price, age, bumped age, listing title, designer, size__
+  - `parse.py` parses and extracts the following fields for each field item and saves those results in CSV format (`./feed.csv` by default): __price, original price, age, bumped age, listing title, designer, size__
   - `designers.py` is my attempt at doing some analysis with the CSV generated from the scrape & parse flow. Dive into the source code of that file to see what methods may fit your needs. An example output of the `summary` method looks like this:
 ```
+casperjs ./index.js --designers='supreme' --sort=high
+python3 parse.py
 python3 -i designers.py
 >>> G.summary()
 [supreme]
