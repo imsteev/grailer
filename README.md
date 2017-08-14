@@ -35,17 +35,18 @@ python3 -i designers.py
 ```
 
 ## How to use
-CasperJS is built on top of [PhantomJS](https://phantomjs.org), so it comes included with a command-line interface. To help narrow down the data you actaully care about, the script accepts some command-line options that help leverage the filtering engine on Grailed's site.
+CasperJS comes included with a [command-line interface](http://docs.casperjs.org/en/latest/cli.html). The script accepts some command-line options that leverage the filtering engine on Grailed's site. Key-value arguments are separated by an equals sign `=` with no space in between.
 
 ```
 --numItems # number of items you want the script to scrape
 --designers # comma separated list of designers to filter (if left out, will search what is shown by default)
 --markets # grails, hype, core (if left out, will search all three)
 --sort # default, new, popular, high, low (choose one)
+--f # destination to write results. defaults to `./feed.html`
 ```
 Example usage:
 ```
-casperjs ./index.js --designers='off-white, vetements' sort=high --numItems=500
+casperjs ./index.js --f=./designer.html --designers='off-white, vetements' --sort=high --numItems=500
 ```
 
 ### How does the scrape work?
