@@ -1,7 +1,6 @@
 *.csv
 *.html
 *.txt
-scrape_data/
-scrape_data/*
-__pycache__
 log.json
+scrape_data/
+__pycache__/
