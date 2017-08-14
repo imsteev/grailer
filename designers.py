@@ -1,3 +1,4 @@
+import sys
 import pandas as pd
 from designer_summary import DesignerSummary
 
@@ -145,7 +146,14 @@ class Grailed(object):
         cleaned = [chr(215) if s == 'x' else s for s in designer_name.split(' ')]
         return ' '.join(cleaned)
 
-G = Grailed('./feed_items.csv')
+if __name__ == "__main__":
+    source_csv = './feed.csv'
+
+    for arg in sys.argv:
+        if arg.endswith(".csv"):
+            source_csv = arg
+    
+    G = Grailed(source_csv)
 
 
 

@@ -61,16 +61,15 @@ class FeedParser(object):
         return result
 
 if __name__ == '__main__':
-    feed_html = './feed_items.html'
-    csv_dest = './feed_items.csv'
+    feed_html = './feed.html'
+    csv_dest = './feed.csv'
 
     for arg in sys.argv:
         if arg.endswith('.html'):
             feed_html = arg
         elif arg.endswith('.csv'):
             csv_dest = arg
-    
 
     dp = FeedParser(feed_html, csv_dest)
-    
+
     dp.create_csv()
