@@ -1,7 +1,7 @@
 var fs = require('fs');
 var casper = require('casper').create();
 
-var NUM_ITEMS = 5000
+var NUM_ITEMS = 0
 
 var MARKETS = ['grails', 'hype', 'core']
 
@@ -28,7 +28,7 @@ var DESIGNERS_TO_SCRAPE = [] /* if empty, scrape all designers */
 var CATEGORIES_TO_SCRAPE = [] /* if empty, scrape all categories */
 
 var TRIES = 0
-var TRY_SCROLL_LIMIT = 20
+var TRY_SCROLL_LIMIT = 15
 
 var scrollNum = 0
 var prevFeedItemCount = null
@@ -84,20 +84,16 @@ casper.then(function() {
 });
 
 casper.then(function() {
-    casper.echo("  TOTAL ITEMS SCRAPED: " + numFeedItems());
-})
-
-casper.then(function () {
     var html = this.getHTML('.feed', true);
-    fs.write('feed.html', html)
+
+    dest = casper.cli.has('f') ? casper.cli.get('f') : './feed.html' 
+
+    fs.write(dest, html);
 });
 
 casper.then(function () {
     this.echo('\n[FINISHED]');
-});
-
-casper.then(function () {
-    printMarketFilterDetails();
+    this.echo("\n  TOTAL ITEMS SCRAPED: " + numFeedItems());
 });
 
 casper.run();
@@ -161,7 +157,6 @@ function clickDesignerFilter(designer) {
             casper.click(selector);
             // Grailed's search auto-corrects
             var actualDesignerText = casper.getElementInfo(selector).text.toLowerCase();
-            casper.echo('SUCCESSFULLY SELECTED DESIGNER: ' + actualDesignerText);
             ACTUAL_DESIGNERS.push(actualDesignerText);
             casper.wait(3000);
         } catch(e) {
@@ -193,8 +188,8 @@ function setMarketFilterActive(marketName) {
 
 function setMarketFilterNotActive(marketName) {
     var classes = casper.getElementAttribute(MARKET_FILTER_SELECTOR[marketName], 'class')
+    
     var isMarketActive = classes.split(" ").indexOf('active') !== -1;
-
     if (isMarketActive) {
         clickMarketFilter(marketName);
     }
