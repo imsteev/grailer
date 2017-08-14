@@ -1,4 +1,6 @@
 *.csv
 *.html
 *.txt
+scrape_data/
+scrape_data/*
 log.json
