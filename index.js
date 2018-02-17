@@ -1,46 +1,12 @@
 var fs = require('fs');
 var casper = require('casper').create();
-
 var gf = require('./grailedFilter');
+var gs = require('./grailedSelectors');
 
 var NUM_ITEMS = 0
 
 var MARKETS = ['grails', 'hype', 'core']
 
-var MARKET_FILTER_SELECTOR = {
-    grails: '.strata-wrapper div.active-indicator:nth-child(1)',
-    hype: '.strata-wrapper div.active-indicator:nth-child(2)',
-    core: '.strata-wrapper div.active-indicator:nth-child(3)'
-}
-
-var SORT_FILTER_SELECTOR = {
-    default: '.sort .drop-down-toggle h3:nth-child(1)',
-    new: '.sort .drop-down-toggle h3:nth-child(2)',
-    low: '.sort .drop-down-toggle h3:nth-child(3)',
-    high: '.sort .drop-down-toggle h3:nth-child(4)',
-    popular: '.sort .drop-down-toggle h3:nth-child(5)'
-}
-
-var CATEGORY_FILTER_SELECTOR = {
-    tops: {
-
-    },
-    bottoms: {
-
-    },
-    outerwear: {
-
-    },
-    footwear: {
-        
-    },
-    accessories: {
-
-    }
-}
-
-var DESIGNER_SEARCH_SELECTOR = '.designer-search-wrapper input';
-var DESIGNER_SEARCH_LIST_SELECTOR = '.designer-search-wrapper .designer-list';
 var ACTUAL_DESIGNERS = []
 
 var MARKETS_TO_SCRAPE = [] /* By default, only grails is selected */
@@ -52,8 +18,6 @@ var TRY_SCROLL_LIMIT = 15
 
 var scrollNum = 0
 var prevFeedItemCount = null
-
-var filter = new gf.GrailedFilter();
 
 casper.start('https://grailed.com/', function() {
     MARKETS_TO_SCRAPE = getMarketsToScrape().slice();
@@ -171,14 +135,6 @@ function loadFeedItems (numItems) {
     });
 }
 
-function configureSizeFilters() {
-
-}
-
-function configureCategoryFilters() {
-
-}
-
 function configureDesignerFilters() {
     var i = 0;
     casper.repeat(DESIGNERS_TO_SCRAPE.length, function () {
@@ -192,18 +148,18 @@ function configureMarketFilters() {
         var marketName = MARKETS[i++]
 
         if (MARKETS_TO_SCRAPE.indexOf(marketName) !== -1) {
-            setMarketFilterActive(marketName);
+            setFilter(gs.MARKET[marketName], true);
         } else {
-            setMarketFilterNotActive(marketName);
+            setFilter(gs.MARKET[marketName], false);
         }
     });
 }
 
 function clickDesignerFilter(designer) {
-    casper.sendKeys(DESIGNER_SEARCH_SELECTOR, designer, { reset : true });
+    casper.sendKeys(gs.DESIGNER_SEARCH, designer, { reset : true });
     casper.wait(3000, function () {
         try {
-            var selector = DESIGNER_SEARCH_LIST_SELECTOR + ' .designer .active-indicator:nth-child(1)';
+            var selector = gs.DESIGNER_SEARCH_LIST + ' .designer .active-indicator:nth-child(1)';
             casper.click(selector);
             // Grailed's search auto-corrects
             var actualDesignerText = casper.getElementInfo(selector).text.toLowerCase();
@@ -215,50 +171,25 @@ function clickDesignerFilter(designer) {
     });
 }
 
-function clickMarketFilter(marketName) {
-    casper.click(MARKET_FILTER_SELECTOR[marketName]);
-    casper.wait(1000);
-}
-
 function clickSortFilter(sortName) {
     casper.click('h3.drop-down-title');
-    casper.click(SORT_FILTER_SELECTOR[sortName]);
+    casper.click(gs.SORT[sortName]);
     casper.log('SUCCESSFULLY SELECTED SORT FILTER: ' + sortName.toUpperCase());
     casper.wait(1000); 
 }
 
-function setMarketFilterActive(marketName) {
-    var classes = casper.getElementAttribute(MARKET_FILTER_SELECTOR[marketName], 'class');
-
+function setFilter(selector, active) {
+    var classes = casper.getElementAttribute(selector, 'class');
     var isMarketActive = classes.split(" ").indexOf('active') !== -1;
-    if (!isMarketActive) {
-        clickMarketFilter(marketName);
-    }
-}
-
-function setMarketFilterNotActive(marketName) {
-    var classes = casper.getElementAttribute(MARKET_FILTER_SELECTOR[marketName], 'class')
-    
-    var isMarketActive = classes.split(" ").indexOf('active') !== -1;
-    if (isMarketActive) {
-        clickMarketFilter(marketName);
+    if (isMarketActive != active) {
+        casper.click(selector);
+        casper.wait(1000);
     }
 }
 
 function getMarketItemCount(marketName) {
-    var marketIndex = { 
-        grails: 1,
-        hype: 2,
-        core: 3
-    }
-    var index = marketIndex[marketName]
-
-    var selector = MARKET_FILTER_SELECTOR[marketName] + ' .sub-title.small';
+    var selector = gs.MARKET[marketName] + ' .sub-title.small';
     return parseInt(casper.getElementInfo(selector).text);
-}
-
-function getDesignerSelector(index) {
-    return '.designers-group .active-indicator:nth-child(' + index + ')';
 }
 
 function getMarketsToScrape() {
@@ -270,7 +201,7 @@ function getMarketsToScrape() {
         });
 
         markets = markets.filter(function (market) {
-            return market.length > 0 && market in MARKET_FILTER_SELECTOR;
+            return market.length > 0 && market in gs.MARKET;
         });
 
         return markets;
@@ -300,8 +231,7 @@ function getDesignersToScrape() {
 function configureSortFilter() {
     if (casper.cli.has('sort')) {
         var sortFilterName = casper.cli.get('sort');
-
-        if (sortFilterName in SORT_FILTER_SELECTOR) {
+        if (sortFilterName in gs.SORT) {
             clickSortFilter(sortFilterName);
         }
     }

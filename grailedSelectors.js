@@ -1,3 +1,6 @@
+exports.DESIGNER_SEARCH = '.designer-search-wrapper input';
+exports.DESIGNER_SEARCH_LIST = '.designer-search-wrapper .designer-list';
+
 exports.MARKET = {
     grails: '.strata-wrapper div.active-indicator:nth-child(1)',
     hype: '.strata-wrapper div.active-indicator:nth-child(2)',

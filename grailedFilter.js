@@ -1,8 +1,6 @@
-import { isObject } from 'util';
-
 var _ = require('underscore');
 
-function GrailedFilter() {
+exports.GrailedFilter = function() {
     var self = this;
 
     self.filter = {
@@ -25,7 +23,7 @@ function GrailedFilter() {
                     return originalField.indexOf(item) < 0;
                 })
                 self.filter[item] = self.filter[item].concat(noDups);
-            } else if (Object.isObject(originalField)) {
+            } else {
                 
                 for (var innerItem in newField) {
                     if (!(innerItem in originalField)) {
@@ -42,5 +40,3 @@ function GrailedFilter() {
         }
     }
 }
-
-exports.GrailedFilter = GrailedFilter;
