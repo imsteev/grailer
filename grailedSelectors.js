@@ -1,10 +1,10 @@
-exports.MARKET_FILTER_SELECTOR = {
+exports.MARKET = {
     grails: '.strata-wrapper div.active-indicator:nth-child(1)',
     hype: '.strata-wrapper div.active-indicator:nth-child(2)',
     core: '.strata-wrapper div.active-indicator:nth-child(3)'
 }
 
-exports.SORT_FILTER_SELECTOR = {
+exports.SORT = {
     default: '.sort .drop-down-toggle h3:nth-child(1)',
     new: '.sort .drop-down-toggle h3:nth-child(2)',
     low: '.sort .drop-down-toggle h3:nth-child(3)',
@@ -183,5 +183,16 @@ exports.SIZES = {
         46 : ".sizes-wrapper .sizes.accessories > p.active-indicator:nth-of-type(12)"
     }
 }
+
+exports.LOCATIONS = {
+    US: ".locations-wrapper div.active-indicator:nth-of-type(1)",
+    Canada : ".locations-wrapper div.active-indicator:nth-of-type(2)",
+    UK : ".locations-wrapper div.active-indicator:nth-of-type(3)",
+    EU : ".locations-wrapper div.active-indicator:nth-of-type(4)",
+    Asia : ".locations-wrapper div.active-indicator:nth-of-type(5)",
+    Aus : ".locations-wrapper div.active-indicator:nth-of-type(6)",
+    Other : ".locations-wrapper div.active-indicator:nth-of-type(7)"
+}
+
 exports.DESIGNER_SEARCH_SELECTOR = '.designer-search-wrapper input';
 exports.DESIGNER_SEARCH_LIST_SELECTOR = '.designer-search-wrapper .designer-list';
