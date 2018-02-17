@@ -1,0 +1,32 @@
+{
+    "designer": [], // list of designers
+    "market": [], //hype, core, grailed, sartorial
+    "category": {
+        "tops": {
+
+        },
+        "bottoms": {
+
+        },
+        "outerwear": {
+
+        },
+        "footwear": {
+
+        },
+        "tailoring": {
+
+        },
+        "accessories": {
+            
+        }
+    },
+    "sort": {
+
+    },
+    "price": {
+        "min": 0,
+        "max": 0
+    },
+    "location": [] // U.S, Canada, United Kingdom, Europe, Asia, Austrailia/NZ, Other
+}

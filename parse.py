@@ -9,7 +9,6 @@ class FeedParser(object):
         self.feed_html = None
         self.soup = None
         self.dest = csv_dest
-        
         self.load_feed_html(html_path)
 
     def load_feed_html(self, html_path):

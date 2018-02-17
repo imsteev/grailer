@@ -1,6 +1,8 @@
 var fs = require('fs');
 var casper = require('casper').create();
 
+var gf = require('./grailedFilter');
+
 var NUM_ITEMS = 0
 
 var MARKETS = ['grails', 'hype', 'core']
@@ -19,6 +21,24 @@ var SORT_FILTER_SELECTOR = {
     popular: '.sort .drop-down-toggle h3:nth-child(5)'
 }
 
+var CATEGORY_FILTER_SELECTOR = {
+    tops: {
+
+    },
+    bottoms: {
+
+    },
+    outerwear: {
+
+    },
+    footwear: {
+        
+    },
+    accessories: {
+
+    }
+}
+
 var DESIGNER_SEARCH_SELECTOR = '.designer-search-wrapper input';
 var DESIGNER_SEARCH_LIST_SELECTOR = '.designer-search-wrapper .designer-list';
 var ACTUAL_DESIGNERS = []
@@ -33,9 +53,22 @@ var TRY_SCROLL_LIMIT = 15
 var scrollNum = 0
 var prevFeedItemCount = null
 
+var filter = new gf.GrailedFilter();
+
 casper.start('https://grailed.com/', function() {
     MARKETS_TO_SCRAPE = getMarketsToScrape().slice();
     DESIGNERS_TO_SCRAPE = getDesignersToScrape().slice();
+    filter.addToFilter(
+        {
+            "markets": MARKETS_TO_SCRAPE,
+            "designers": DESIGNERS_TO_SCRAPE,
+            "categories" : {
+                "top": [1,2,3],
+                "bottom": [4,5,6]
+            }
+        }
+    )
+    console.log(JSON.stringify(filter.filter));
 });
 
 casper.then(function() {
@@ -45,6 +78,15 @@ casper.then(function() {
 casper.then(function() {
     configureMarketFilters();
 });
+
+casper.then(function() {
+    configureCategoryFilters();
+})
+
+casper.then(function() {
+    configureSizeFilters();
+});
+
 
 casper.then(function () {
     if (casper.cli.has('numItems')) { 
@@ -127,6 +169,14 @@ function loadFeedItems (numItems) {
             }
         })
     });
+}
+
+function configureSizeFilters() {
+
+}
+
+function configureCategoryFilters() {
+
 }
 
 function configureDesignerFilters() {
