@@ -4,7 +4,8 @@ exports.DESIGNER_SEARCH_LIST = '.designer-search-wrapper .designer-list';
 exports.MARKET = {
     grails: '.strata-wrapper div.active-indicator:nth-child(1)',
     hype: '.strata-wrapper div.active-indicator:nth-child(2)',
-    core: '.strata-wrapper div.active-indicator:nth-child(3)'
+    sartorial : '.strata-wrapper div.active-indicator:nth-child(3)',
+    core: '.strata-wrapper div.active-indicator:nth-child(4)',
 }
 
 exports.SORT = {
@@ -17,17 +18,19 @@ exports.SORT = {
 
 exports.CATEGORIES = {
     tops: {
+        panel: ".categories-wrapper .tops-wrapper .filter-category-item-header h3 span:nth-child(1)",
         all: ".categories-wrapper .tops-wrapper .filter-category-item-header .active-indicator",
-        longSleeve : ".categories-wrapper .tops-wrapper > p.active-indicator:nth-of-type(1)",
+        longsleeve : ".categories-wrapper .tops-wrapper > p.active-indicator:nth-of-type(1)",
         polos : ".categories-wrapper .tops-wrapper > p.active-indicator:nth-of-type(2)",
         shirts : ".categories-wrapper .tops-wrapper > p.active-indicator:nth-of-type(3)",
-        teeShirts : ".categories-wrapper .tops-wrapper > p.active-indicator:nth-of-type(4)",
+        tshirts : ".categories-wrapper .tops-wrapper > p.active-indicator:nth-of-type(4)",
         sweaters : ".categories-wrapper .tops-wrapper > p.active-indicator:nth-of-type(5)",
         sweatshirts : ".categories-wrapper .tops-wrapper > p.active-indicator:nth-of-type(6)",
         sleeveless : ".categories-wrapper .tops-wrapper > p.active-indicator:nth-of-type(7)",
         jerseys : ".categories-wrapper .tops-wrapper > p.active-indicator:nth-of-type(8)"
     },
     bottoms: {
+        panel : ".categories-wrapper .bottoms-wrapper .filter-category-item-header h3 span:nth-child(1)",
         all: ".categories-wrapper .bottoms-wrapper .filter-category-item-header .active-indicator",
         casual : ".categories-wrapper .bottoms-wrapper > p.active-indicator:nth-of-type(1)",
         cropped : ".categories-wrapper .bottoms-wrapper > p.active-indicator:nth-of-type(2)",
@@ -39,6 +42,7 @@ exports.CATEGORIES = {
         swimwear : ".categories-wrapper .bottoms-wrapper > p.active-indicator:nth-of-type(8)"
     },
     outerwear: {
+        panel : ".categories-wrapper .outerwear-wrapper .filter-category-item-header h3 span:nth-child(1)",
         all: ".categories-wrapper .outerwear-wrapper .filter-category-item-header .active-indicator",
         bombers : ".categories-wrapper .outerwear-wrapper > p.active-indicator:nth-of-type(1)",
         cloaks : ".categories-wrapper .outerwear-wrapper > p.active-indicator:nth-of-type(2)",
@@ -51,6 +55,7 @@ exports.CATEGORIES = {
         vests : ".categories-wrapper .outerwear-wrapper > p.active-indicator:nth-of-type(9)"
     },
     footwear: {
+        panel : ".categories-wrapper .footwear-wrapper .filter-category-item-header h3 span:nth-child(1)",
         all: ".categories-wrapper .footwear-wrapper .filter-category-item-header .active-indicator",
         boots : ".categories-wrapper .footwear-wrapper > p.active-indicator:nth-of-type(1)",
         casual : ".categories-wrapper .footwear-wrapper > p.active-indicator:nth-of-type(2)",
@@ -61,6 +66,7 @@ exports.CATEGORIES = {
         slipOns : ".categories-wrapper .footwear-wrapper > p.active-indicator:nth-of-type(7)"
     },
     tailoring: {
+        panel : ".categories-wrapper .tailoring-wrapper .filter-category-item-header h3 span:nth-child(1)",
         all: ".categories-wrapper .tailoring-wrapper .filter-category-item-header .active-indicator",
         blazers : ".categories-wrapper .tailoring-wrapper > p.active-indicator:nth-of-type(1)",
         formalShirting : ".categories-wrapper .tailoring-wrapper > p.active-indicator:nth-of-type(2)",
@@ -70,6 +76,7 @@ exports.CATEGORIES = {
         vests : ".categories-wrapper .tailoring-wrapper > p.active-indicator:nth-of-type(6)"
     },
     accessories: {
+        panel : ".categories-wrapper .accessories-wrapper .filter-category-item-header h3 span:nth-child(1)",
         all: ".categories-wrapper .accessories-wrapper .filter-category-item-header .active-indicator",
         bags : ".categories-wrapper .accessories-wrapper > p.active-indicator:nth-of-type(1)",
         belts : ".categories-wrapper .accessories-wrapper > p.active-indicator:nth-of-type(2)",
@@ -89,6 +96,7 @@ exports.CATEGORIES = {
 
 exports.SIZES = {
     tops: {
+        panel : ".sizes-wrapper > div.filter-bottom.checkboxes > span:nth-child(1) > div > h3 > span:nth-child(1)",
         XXS: ".sizes-wrapper .sizes.tops.outerwear > p.active-indicator:nth-of-type(1)",
         XS : ".sizes-wrapper .sizes.tops.outerwear > p.active-indicator:nth-of-type(2)",
         S : ".sizes-wrapper .sizes.tops.outerwear > p.active-indicator:nth-of-type(3)",
@@ -98,6 +106,7 @@ exports.SIZES = {
         XXL : ".sizes-wrapper .sizes.tops.outerwear > p.active-indicator:nth-of-type(7)"
     },
     bottoms: {
+        panel : ".sizes-wrapper > div.filter-bottom.checkboxes > span:nth-child(2) > div > h3 > span:nth-child(1)",
         26 : ".sizes-wrapper .sizes.bottoms > p.active-indicator:nth-of-type(1)",
         27 : ".sizes-wrapper .sizes.bottoms > p.active-indicator:nth-of-type(2)",
         28 : ".sizes-wrapper .sizes.bottoms > p.active-indicator:nth-of-type(3)",
@@ -119,6 +128,7 @@ exports.SIZES = {
         44 : ".sizes-wrapper .sizes.bottoms > p.active-indicator:nth-of-type(19)"
     },
     footwear: {
+        panel : ".sizes-wrapper > div.filter-bottom.checkboxes > span:nth-child(3) > div > h3 > span:nth-child(1)",
         "5" : ".sizes-wrapper .sizes.footwear > p.active-indicator:nth-of-type(1)",
         "5.5" : ".sizes-wrapper .sizes.footwear > p.active-indicator:nth-of-type(2)",
         "6" : ".sizes-wrapper .sizes.footwear > p.active-indicator:nth-of-type(3)",
@@ -140,6 +150,7 @@ exports.SIZES = {
         "15" : ".sizes-wrapper .sizes.footwear > p.active-indicator:nth-of-type(19)"
     },
     tailoring: {
+        panel : ".sizes-wrapper > div.filter-bottom.checkboxes > span:nth-child(4) > div > h3 > span:nth-child(1)",
         "34S" : ".sizes-wrapper .sizes.tailoring > p.active-indicator:nth-of-type(1)",
         "34R" : ".sizes-wrapper .sizes.tailoring > p.active-indicator:nth-of-type(2)",
         "36S" : ".sizes-wrapper .sizes.tailoring > p.active-indicator:nth-of-type(3)",
@@ -172,6 +183,7 @@ exports.SIZES = {
         "54L" : ".sizes-wrapper .sizes.tailoring > p.active-indicator:nth-of-type(30)"
     },
     accessories: {
+        panel : ".sizes-wrapper > div.filter-bottom.checkboxes > span:nth-child(5) > div > h3 > span:nth-child(1)",
         OS : ".sizes-wrapper .sizes.accessories > p.active-indicator:nth-of-type(1)",
         26 : ".sizes-wrapper .sizes.accessories > p.active-indicator:nth-of-type(2)",
         28 : ".sizes-wrapper .sizes.accessories > p.active-indicator:nth-of-type(3)",
@@ -188,6 +200,7 @@ exports.SIZES = {
 }
 
 exports.LOCATIONS = {
+    
     US: ".locations-wrapper div.active-indicator:nth-of-type(1)",
     Canada : ".locations-wrapper div.active-indicator:nth-of-type(2)",
     UK : ".locations-wrapper div.active-indicator:nth-of-type(3)",

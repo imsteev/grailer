@@ -56,7 +56,7 @@ class FeedParser(object):
         marked_down = f.find('h3', 'new-price') is not None
         result['original_price'] = f.find('h3', 'original-price').text
         result['price'] = f.find('h3', 'new-price').text if marked_down else result['original_price']
-
+        
         return result
 
 if __name__ == '__main__':
