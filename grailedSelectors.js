@@ -1,5 +1,8 @@
 exports.DESIGNER_SEARCH = '.designer-search-wrapper input';
 exports.DESIGNER_SEARCH_LIST = '.designer-search-wrapper .designer-list';
+exports.DESIGNER_SEARCH_LIST_RESULTS = '.designer-search-wrapper .designer-list .designer .active-indicator:nth-child(1)'
+exports.DESIGNER_SEARCH_SELECTOR = '.designer-search-wrapper input';
+exports.DESIGNER_SEARCH_LIST_SELECTOR = '.designer-search-wrapper .designer-list';
 
 exports.MARKET = {
     grails: '.strata-wrapper div.active-indicator:nth-child(1)',
@@ -9,6 +12,7 @@ exports.MARKET = {
 }
 
 exports.SORT = {
+    dropdown: 'h3.drop-down-title',
     default: '.sort .drop-down-toggle h3:nth-child(1)',
     new: '.sort .drop-down-toggle h3:nth-child(2)',
     low: '.sort .drop-down-toggle h3:nth-child(3)',
@@ -200,7 +204,6 @@ exports.SIZES = {
 }
 
 exports.LOCATIONS = {
-    
     US: ".locations-wrapper div.active-indicator:nth-of-type(1)",
     Canada : ".locations-wrapper div.active-indicator:nth-of-type(2)",
     UK : ".locations-wrapper div.active-indicator:nth-of-type(3)",
@@ -210,5 +213,16 @@ exports.LOCATIONS = {
     Other : ".locations-wrapper div.active-indicator:nth-of-type(7)"
 }
 
-exports.DESIGNER_SEARCH_SELECTOR = '.designer-search-wrapper input';
-exports.DESIGNER_SEARCH_LIST_SELECTOR = '.designer-search-wrapper .designer-list';
+exports.DEBUG = {
+    markets : {
+        grails: '.strata-wrapper .active-indicator:nth-child(1)',
+        hype: '.strata-wrapper .active-indicator:nth-child(2)',
+        sartorial: '.strata-wrapper .active-indicator:nth-child(3)',
+        core: '.strata-wrapper .active-indicator:nth-child(4)'
+    },
+    sizes: {
+        footwear: {
+            all: ".categories-wrapper .footwear-wrapper .filter-category-item-header p"
+        }
+    }
+}

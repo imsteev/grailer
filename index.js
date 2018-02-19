@@ -12,6 +12,7 @@ var ACTUAL_DESIGNERS = []
 var MARKETS_TO_SCRAPE = [] /* By default, only grails is selected */
 var DESIGNERS_TO_SCRAPE = [] /* if empty, scrape all designers */
 var CATEGORIES_TO_SCRAPE = [] /* if empty, scrape all categories */
+var LOCATIONS_TO_SCRAPE = []
 var PANELS_TO_CLICK = []
 
 var TRIES = 0
@@ -25,48 +26,18 @@ var filter = new gf.GrailedFilter();
 casper.start('https://grailed.com/', function() {
     MARKETS_TO_SCRAPE = getMarketsToScrape().slice();
     DESIGNERS_TO_SCRAPE = getDesignersToScrape().slice();
+    LOCATIONS_TO_SCRAPE = getLocationsToScrape().slice();
 });
 
 casper.then(function() {
-    if (casper.cli.has('categories')) {
-        var categories = casper.cli.get('categories').split(' ');
-        for (var i=0; i<categories.length; i++) {
-            var category = categories[i];
-            var items = category.split(':')
-            var categoryName = items[0]
-            var subcategories = items[1].split(',')
-            var obj = {}
-            obj[categoryName] = subcategories
-            filter.addToFilter({categories: obj});
-            PANELS_TO_CLICK.push(gs.CATEGORIES[categoryName]['panel'])
-            subcategories.forEach(function(subcategory, _) {
-                CATEGORIES_TO_SCRAPE.push(gs.CATEGORIES[categoryName][subcategory])
-            })
-        }
-    }
+    configureCategoricalFilter('CATEGORIES')
 })
 
 casper.then(function() {
-    if (casper.cli.has('sizes')) {
-        var sizes = casper.cli.get('sizes').split(' ');
-        for (var i=0; i<sizes.length; i++) {
-            var category = sizes[i];
-            var items = category.split(':')
-            var categoryName = items[0]
-            var subcategories = items[1].split(',')
-            var obj = {}
-            obj[categoryName] = subcategories
-            filter.addToFilter({sizes: obj});
-            PANELS_TO_CLICK.push(gs.CATEGORIES[categoryName]['panel'])
-            subcategories.forEach(function(subcategory, _) {
-                CATEGORIES_TO_SCRAPE.push(gs.CATEGORIES[categoryName][subcategory])
-            })
-        }
-    }
+    configureCategoricalFilter('SIZES')
 })
 
 casper.then(function() {
-    
     configureSortFilter();
 });
 
@@ -84,6 +55,15 @@ casper.then(function() {
 
 casper.then(function() {
     clickSelectors(CATEGORIES_TO_SCRAPE);
+})
+
+casper.then(function() {
+    var locationSelectors = [];
+    LOCATIONS_TO_SCRAPE.forEach(function(location,_) {
+        console.log(gs.LOCATIONS[location])
+        locationSelectors.push(gs.LOCATIONS[location])
+    });
+    clickSelectors(locationSelectors);
 })
 
 casper.then(function () {
@@ -130,25 +110,26 @@ casper.then(function () {
     this.echo("\n  TOTAL ITEMS SCRAPED: " + numFeedItems());
     // printMarketFilterDetails()
     sizeFilterDetails();
+    console.log(JSON.stringify(filter.filter))
 });
 
 casper.run();
 
 function clickSelectors(selectors) {
     var i = 0;
+    console.log(selectors)
     casper.repeat(selectors.length, function () {
-        casper.click(selectors[i++]);
+        var selector = selectors[i++];
+        console.log(selector)
+        casper.click(selector);
         casper.wait(500);
     })
 }
 
 function numFeedItems() {
-    var result = casper.evaluate(function() {
-        var feedItems = $("div.feed-item");
-        return feedItems.length;
+    return casper.evaluate(function() {
+        return $("div.feed-item").length;
     });
-
-    return result;
 }
 
 function loadFeedItems (numItems) {
@@ -192,20 +173,41 @@ function configureMarketFilters() {
     casper.repeat(MARKETS.length, function () {
         var marketName = MARKETS[i++]
         if (MARKETS_TO_SCRAPE.indexOf(marketName) == -1) {
-            filter.addToFilter({markets: [marketName]})
             setMarketFilter(gs.MARKET[marketName], false);
         } else {
+            filter.addToFilter({markets: [marketName]})
             setMarketFilter(gs.MARKET[marketName], true);
         }
     });
 }
-
+function configureCategoricalFilter(domain) {
+    if (casper.cli.has(domain.toLowerCase())) {
+        var res = casper
+            .cli
+            .get(domain.toLowerCase())
+            .split(' ');
+        for (var i = 0; i < res.length; i++) {
+            var category = res[i];
+            var items = category.split(':')
+            var categoryName = items[0]
+            var subcategories = items[1].split(',')
+            var obj = {}
+            obj[domain.toLowerCase()] = {}
+            obj[domain.toLowerCase()][categoryName] = subcategories
+            filter.addToFilter(obj);
+            PANELS_TO_CLICK.push(gs[domain][categoryName]['panel'])
+            subcategories.forEach(function (subcategory, _) {
+                CATEGORIES_TO_SCRAPE.push(gs[domain][categoryName][subcategory])
+            })
+        }
+    }
+}
 function clickDesignerFilter(designer) {
     filter.addToFilter({designers: [designer]});
     casper.sendKeys(gs.DESIGNER_SEARCH, designer, { reset : true });
     casper.wait(3000, function () {
         try {
-            var selector = gs.DESIGNER_SEARCH_LIST + ' .designer .active-indicator:nth-child(1)';
+            var selector = gs.DESIGNER_SEARCH_LIST_RESULTS;
             casper.click(selector);
             // Grailed's search auto-corrects
             var actualDesignerText = casper.getElementInfo(selector).text.toLowerCase();
@@ -218,9 +220,8 @@ function clickDesignerFilter(designer) {
 }
 
 function clickSortFilter(sortName) {
-    casper.click('h3.drop-down-title');
+    casper.click(gs.SORT['dropdown']);
     casper.click(gs.SORT[sortName]);
-    casper.log('SUCCESSFULLY SELECTED SORT FILTER: ' + sortName.toUpperCase());
     casper.wait(1000); 
 }
 
@@ -249,6 +250,17 @@ function getMarketsToScrape() {
     return MARKETS.slice();
 }
 
+function getLocationsToScrape() {
+    if (casper.cli.has('locations')) {
+        var locations = casper.cli.get('locations').split(',');
+        filter.addToFilter({locations: locations})
+        return locations.map(function (location) { return location.trim()})
+                         .filter(function (location) { return location.length > 0 && location in gs.LOCATIONS });
+    }
+
+    return [];
+}
+
 function getDesignersToScrape() {
     if (casper.cli.has('designers')) {
         var designers = casper.cli.get('designers').split(',');
@@ -272,22 +284,22 @@ function configureSortFilter() {
 }
 
 function printMarketFilterDetails() {
-    require('utils').dump(casper.getElementInfo('.strata-wrapper .active-indicator:nth-child(1)')['text']);
-    require('utils').dump(casper.getElementInfo('.strata-wrapper .active-indicator:nth-child(1)')['attributes']);
+    require('utils').dump(casper.getElementInfo(gs.DEBUG['markets']['grails'])['text']);
+    require('utils').dump(casper.getElementInfo(gs.DEBUG['markets']['grails'])['attributes']);
 
-    require('utils').dump(casper.getElementInfo('.strata-wrapper .active-indicator:nth-child(2)')['text']);
-    require('utils').dump(casper.getElementInfo('.strata-wrapper .active-indicator:nth-child(2)')['attributes']);
+    require('utils').dump(casper.getElementInfo(gs.DEBUG['markets']['hype'])['text']);
+    require('utils').dump(casper.getElementInfo(gs.DEBUG['markets']['hype'])['attributes']);
 
-    require('utils').dump(casper.getElementInfo('.strata-wrapper .active-indicator:nth-child(3)')['text']);
-    require('utils').dump(casper.getElementInfo('.strata-wrapper .active-indicator:nth-child(3)')['attributes']);
+    require('utils').dump(casper.getElementInfo(gs.DEBUG['markets']['sartorial'])['text']);
+    require('utils').dump(casper.getElementInfo(gs.DEBUG['markets']['sartorial'])['attributes']);
 
-    require('utils').dump(casper.getElementInfo('.strata-wrapper .active-indicator:nth-child(4)')['text']);
-    require('utils').dump(casper.getElementInfo('.strata-wrapper .active-indicator:nth-child(4)')['attributes']);
+    require('utils').dump(casper.getElementInfo(gs.DEBUG['markets']['core'])['text']);
+    require('utils').dump(casper.getElementInfo(gs.DEBUG['markets']['core'])['attributes']);
 }
 
 function sizeFilterDetails() {
-    require('utils').dump(casper.getElementInfo(".categories-wrapper .footwear-wrapper .filter-category-item-header p")['text'])
-    require('utils').dump(casper.getElementInfo(".categories-wrapper .footwear-wrapper .filter-category-item-header p")['attributes'])
+    require('utils').dump(casper.getElementInfo(gs.DEBUG['sizes']['footwear']['all'])['text'])
+    require('utils').dump(casper.getElementInfo(gs.DEBUG['sizes']['footwear']['all'])['attributes'])
 }
 
 function printFilterDetails() {
