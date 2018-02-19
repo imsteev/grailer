@@ -126,6 +126,7 @@ casper.then(function() {
 casper.then(function () {
     this.echo('\n[FINISHED]');
     this.echo("\n  TOTAL ITEMS SCRAPED: " + numFeedItems());
+    printMarketFilterDetails()
 });
 
 casper.run();
