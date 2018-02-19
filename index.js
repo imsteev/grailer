@@ -30,11 +30,11 @@ casper.start('https://grailed.com/', function() {
 });
 
 casper.then(function() {
-    configureCategoricalFilter('CATEGORIES')
+    configureCategoricalFilter('categories')
 })
 
 casper.then(function() {
-    configureCategoricalFilter('SIZES')
+    configureCategoricalFilter('sizes');
 })
 
 casper.then(function() {
@@ -181,23 +181,20 @@ function configureMarketFilters() {
     });
 }
 function configureCategoricalFilter(domain) {
-    if (casper.cli.has(domain.toLowerCase())) {
-        var res = casper
-            .cli
-            .get(domain.toLowerCase())
-            .split(' ');
+    if (casper.cli.has(domain)) {
+        var res = casper.cli.get(domain).split(' ');
         for (var i = 0; i < res.length; i++) {
             var category = res[i];
             var items = category.split(':')
             var categoryName = items[0]
             var subcategories = items[1].split(',')
             var obj = {}
-            obj[domain.toLowerCase()] = {}
-            obj[domain.toLowerCase()][categoryName] = subcategories
+            obj[domain] = {}
+            obj[domain][categoryName] = subcategories
             filter.addToFilter(obj);
-            PANELS_TO_CLICK.push(gs[domain][categoryName]['panel'])
+            PANELS_TO_CLICK.push(gs[domain.toUpperCase()][categoryName]['panel'])
             subcategories.forEach(function (subcategory, _) {
-                CATEGORIES_TO_SCRAPE.push(gs[domain][categoryName][subcategory])
+                CATEGORIES_TO_SCRAPE.push(gs[domain.toUpperCase()][categoryName][subcategory])
             })
         }
     }
