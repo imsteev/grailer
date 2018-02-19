@@ -15,9 +15,7 @@ class DesignerSummary(object):
         print("  %s" % self.items_bumped())
 
         if 'num_collabs' in self.summary:
-            print("  %s" % self.num_collabs())
-        
-        print()
+            print("  %s\n" % self.num_collabs())
     
     def max_price(self):
         return "Max price: $%0.2f" % self.summary['max_price']

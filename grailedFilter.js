@@ -40,4 +40,8 @@ exports.GrailedFilter = function() {
             }
         }
     }
+
+    self.validate = function() {
+        
+    }
 }

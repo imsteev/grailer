@@ -13,7 +13,6 @@ class Grailed(object):
         designers_to_groups = self.groups.indices
         self.non_collabs = [name for name in designers_to_groups if not self.is_collab(name)]
         self.collabs = [name for name in designers_to_groups if self.is_collab(name)]
-
         self.designers_with_collabs = { designer : [] for designer in self.non_collabs }
 
         for collab_name in self.collabs:
@@ -27,6 +26,7 @@ class Grailed(object):
         
         # Remove dollar sign and convert to int
         df['price'] = df['price'].map(lambda price_str: int(price_str[1:]))
+
         df['original_price'] = df['original_price'].map(lambda price_str: int(price_str[1:]))
         df['designer'] = df['designer'].map(lambda designer_str: designer_str.lower())
         
@@ -40,12 +40,9 @@ class Grailed(object):
                 'month': 30,
                 'year': 365
             }
-
             time_denoms['min'] = time_denoms['minute']
-
             desc = time_desc.split(' ')
             num, denom = desc[0], desc[1]
-
             if denom[-1] == 's':
                 denom = denom[:len(denom)-1]
 
@@ -58,39 +55,32 @@ class Grailed(object):
 
     def get_designer_avg_price(self, designer_name):
         designer_group = self.get_designer_group(designer_name)
-
         return designer_group['price'].mean()
 
     def get_designer_min_price(self, designer_name):
         designer_group = self.get_designer_group(designer_name)
-
         return designer_group['price'].min()
     
     def get_designer_max_price(self, designer_name):
         designer_group = self.get_designer_group(designer_name)
-
         return designer_group['price'].max()
 
     def get_designer_group(self, designer_name):
         designer_name = self._clean_collab_name(designer_name)
-
         return self.groups.get_group(designer_name)
 
     def get_designer_avg_age(self,designer_name):
         designer_group = self.get_designer_group(designer_name)
-
         return designer_group['age'].mean()
 
     def get_avg_age_bumped(self,designer_name):
         designer_group = self.get_designer_group(designer_name)
-
         return designer_group['bumped'].mean()
 
     def combine_designer_with_collabs(self, designer_name):
         designer_name = self._clean_collab_name(designer_name)
 
         df = self.df.copy()
-
         def extract_collab_designer(designer):
             if designer_name in designer:
                 return designer_name
@@ -100,7 +90,6 @@ class Grailed(object):
 
     def get_num_marked_down(self, designer_name):
         designer_group = self.get_designer_group(designer_name)
-
         return len(designer_group[designer_group['price'] != designer_group['original_price']])
 
     def get_num_bumped(self, designer_name):
@@ -111,7 +100,6 @@ class Grailed(object):
 
     def is_collab(self,designer_name):
         designer_name = self._clean_collab_name(designer_name)
-
         return chr(215) in designer_name
 
     def designer_summary(self, designer_name):
@@ -148,14 +136,8 @@ class Grailed(object):
 
 if __name__ == "__main__":
     source_csv = './feed.csv'
-
     for arg in sys.argv:
         if arg.endswith(".csv"):
             source_csv = arg
     
     G = Grailed(source_csv)
-
-
-
-
-
