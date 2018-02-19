@@ -41,13 +41,16 @@ CasperJS comes included with a [command-line interface](http://docs.casperjs.org
 ```
 --numItems # number of items you want the script to scrape
 --designers # comma separated list of designers to filter (if left out, will search what is shown by default)
---markets # grails, hype, core (if left out, will search all three)
+--markets # grails, hype, sartorial, core (if left out, will search all four)
+--locations
+--categories
+--sizes
 --sort # default, new, popular, high, low (choose one)
 --f # destination to write results
 ```
 Example usage:
 ```
-casperjs ./index.js --f=./designer.html --designers='off-white, vetements' --sort=high --numItems=500
+casperjs ./index.js --designers="supreme,vetements" --markets="grails,sartorial" --categories='footwear:all outerwear:all' --sizes="footwear:9.5 tops:L,S,M" --locations='US,EU' --sort="low" --numItems=20
 ```
 
 ### How does the scrape work?
