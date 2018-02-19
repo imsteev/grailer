@@ -40,7 +40,6 @@ casper.then(function() {
             filter.addToFilter({categories: obj});
             PANELS_TO_CLICK.push(gs.CATEGORIES[categoryName]['panel'])
             subcategories.forEach(function(subcategory, _) {
-                console.log(subcategory, gs.CATEGORIES[categoryName][subcategory])
                 CATEGORIES_TO_SCRAPE.push(gs.CATEGORIES[categoryName][subcategory])
             })
         }
@@ -81,6 +80,9 @@ casper.then(function () {
 
 casper.then(function() {
     clickSelectors(PANELS_TO_CLICK);
+})
+
+casper.then(function() {
     clickSelectors(CATEGORIES_TO_SCRAPE);
 })
 
@@ -126,14 +128,15 @@ casper.then(function() {
 casper.then(function () {
     this.echo('\n[FINISHED]');
     this.echo("\n  TOTAL ITEMS SCRAPED: " + numFeedItems());
-    printMarketFilterDetails()
+    // printMarketFilterDetails()
+    sizeFilterDetails();
 });
 
 casper.run();
 
 function clickSelectors(selectors) {
     var i = 0;
-    casper.repeat(selectors, function () {
+    casper.repeat(selectors.length, function () {
         casper.click(selectors[i++]);
         casper.wait(500);
     })
@@ -206,7 +209,6 @@ function clickDesignerFilter(designer) {
             casper.click(selector);
             // Grailed's search auto-corrects
             var actualDesignerText = casper.getElementInfo(selector).text.toLowerCase();
-            console.log("DESIGNER SEARCH: " + actualDesignerText);
             ACTUAL_DESIGNERS.push(actualDesignerText);
             casper.wait(3000);
         } catch(e) {
@@ -223,7 +225,6 @@ function clickSortFilter(sortName) {
 }
 
 function setMarketFilter(selector, active) {
-    console.log('MARKET FILTER', selector)
     var classes = casper.getElementAttribute(selector, 'class');
     var isMarketActive = classes.split(" ").indexOf('active') == 0;
     if (isMarketActive != active) {
@@ -279,6 +280,14 @@ function printMarketFilterDetails() {
 
     require('utils').dump(casper.getElementInfo('.strata-wrapper .active-indicator:nth-child(3)')['text']);
     require('utils').dump(casper.getElementInfo('.strata-wrapper .active-indicator:nth-child(3)')['attributes']);
+
+    require('utils').dump(casper.getElementInfo('.strata-wrapper .active-indicator:nth-child(4)')['text']);
+    require('utils').dump(casper.getElementInfo('.strata-wrapper .active-indicator:nth-child(4)')['attributes']);
+}
+
+function sizeFilterDetails() {
+    require('utils').dump(casper.getElementInfo(".categories-wrapper .footwear-wrapper .filter-category-item-header p")['text'])
+    require('utils').dump(casper.getElementInfo(".categories-wrapper .footwear-wrapper .filter-category-item-header p")['attributes'])
 }
 
 function printFilterDetails() {
