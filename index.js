@@ -121,7 +121,10 @@ casper.then(function() {
 casper.then(function () {
     this.echo('\n[FINISHED]');
     this.echo("\n  TOTAL ITEMS SCRAPED: " + numFeedItems());
-    console.log(JSON.stringify(filter.filter))
+
+    if (casper.cli.has('saveFilter')) {
+        fs.write('./filter.json', JSON.stringify(filter.filter, null, "\t"))
+    }
 });
 
 casper.run();

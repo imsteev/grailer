@@ -1,6 +1,6 @@
 *.csv
 *.html
 *.txt
-log.json
+*.json
 scrape_data/
 __pycache__/
