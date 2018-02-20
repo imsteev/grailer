@@ -35,7 +35,7 @@ python3 -i designers.py
 ```
 
 ## How to use
-CasperJS comes included with a [command-line interface](http://docs.casperjs.org/en/latest/cli.html). The script accepts some command-line options that leverage the filtering engine on Grailed's site. Key-value arguments are separated by an equals sign `=` with no space in between.
+CasperJS comes included with a [command-line interface](http://docs.casperjs.org/en/latest/cli.html). The script accepts some command-line options that leverage the filtering engine on Grailed's site. Key-value arguments are separated by an equals sign `=` with no space in between. For categorical filters like "categories" and "sizes", use the following format: "category1:subcat,subcat,subcat category2:subcat1,subcat2,subcat3 category3:subcat1,subcat2,subcat3". For example, a valid string for the `sizes` category would be: `--sizes:"tops:L,S,XL,XXL bottoms:30,28"`. An invalid string for the `sizes` category could be something like: `--sizes:"tops: L, S, XL,XXL bottoms: 30,28"`
 
 ```
 --numItems # number of items you want the script to scrape
@@ -47,6 +47,7 @@ CasperJS comes included with a [command-line interface](http://docs.casperjs.org
 --sort # default, new, popular, high, low (choose one)
 --min # minimum price
 --max # maximum price
+--q # general query string to search
 --f # destination to write results
 --saveFilter # saves the filter you configured via command line as JSON file
 ```
