@@ -14,7 +14,7 @@ exports.GrailedFilter = function() {
         "query": "" // general
     }
 
-    self.addToFilter = function(params) {
+    self.add = function(params) {
         for (var item in params) {
             if (!(item in self.config)) continue;
             var originalField = self.config[item];
