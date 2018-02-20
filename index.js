@@ -24,6 +24,14 @@ casper.start('https://grailed.com/', function() {
     LOCATIONS_TO_SCRAPE = getLocationsToScrape().slice();
 });
 
+casper.then(function() {
+    if (casper.cli.has('q')) {
+        var q = casper.cli.raw.get('q')
+        casper.sendKeys(gs.QUERY, q, {keepFocus: true})
+        filter.addToFilter({query: q}); 
+    } 
+})
+
 // Grab categorical filters from command line
 casper.then(function() {
     configureCategoricalFilter('categories')
@@ -126,7 +134,7 @@ casper.then(function () {
     if (numFeedItems() > 0) {
         this.echo("\n  TOTAL ITEMS SCRAPED: " + numFeedItems());
     }
-    
+    printMarketFilterDetails();
     if (casper.cli.has('saveFilter')) {
         fs.write('./filter.json', JSON.stringify(filter.config, null, "\t"))
     }
@@ -275,7 +283,7 @@ function configureSortFilter() {
     if (casper.cli.has('sort')) {
         var sortFilterName = casper.cli.get('sort');
         if (sortFilterName in gs.SORT) {
-            filter.addToFilter({sort: [sortFilterName]});
+            filter.addToFilter({sort: sortFilterName});
             clickSortFilter(sortFilterName);
         }
     }
