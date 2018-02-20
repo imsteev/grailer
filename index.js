@@ -50,15 +50,16 @@ casper.then(function() {
     var minPrice = '';
     var maxPrice = '';
     if (casper.cli.has('min')) {
-        minPrice = parseInt(casper.cli.get('min'));
+        // https://stackoverflow.com/a/25014609/8109239
+        minPrice = casper.cli.raw.get('min');
+        casper.sendKeys(gs.MIN_PRICE, minPrice, {keepFocus: true});
         filter.addToFilter({price: {min : minPrice}})
     }
     if (casper.cli.has('max')) {
-        maxPrice = parseInt(casper.cli.get('max'));
+        maxPrice = casper.cli.raw.get('max');
+        casper.sendKeys(gs.MAX_PRICE, maxPrice, {keepFocus: true});
         filter.addToFilter({price: {max : minPrice}})
     }
-    casper.sendKeys(gs.MIN_PRICE, minPrice, {reset: true});
-    casper.sendKeys(gs.MAX_PRICE, maxPrice, {reset: true});
 })
 
 // Click on sort filter
@@ -108,7 +109,9 @@ casper.then(function() {
 // Scroll to load a number of items equal to NUM_ITEMS
 casper.then(function() {
     casper.echo("[SCRAPE DETAILS]\n");
-    loadFeedItems(NUM_ITEMS);
+    if (numFeedItems() > 0) {
+        loadFeedItems(NUM_ITEMS);
+    }
 });
 
 // Write the loaded content into a local file
@@ -121,7 +124,7 @@ casper.then(function() {
 casper.then(function () {
     this.echo('\n[FINISHED]');
     this.echo("\n  TOTAL ITEMS SCRAPED: " + numFeedItems());
-
+    printMarketFilterDetails();
     if (casper.cli.has('saveFilter')) {
         fs.write('./filter.json', JSON.stringify(filter.filter, null, "\t"))
     }
@@ -296,8 +299,8 @@ function printFilterDetails() {
         casper.echo("  MARKETS: " + MARKETS_TO_SCRAPE);
     }
 
-    if (DESIGNERS_TO_SCRAPE.length === 0) {
-        casper.echo("  DESIGNERS: ALL");
+    if (ACTUAL_DESIGNERS.length === 0) {
+        casper.echo("  DESIGNERS: [NONE SPECIFIED]");
     } else {
         casper.echo("  DESIGNERS: " + ACTUAL_DESIGNERS);
     }
