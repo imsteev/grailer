@@ -3,15 +3,16 @@ var _ = require("underscore");
 exports.GrailedFilter = function() {
   var self = this;
 
+  // valid configuration categories
   self.config = {
-    designers: [], // list of designers
-    markets: [], //hype, core, grailed, sartorial
-    categories: {}, // tops, bottoms, outerwear, footwear, tailoring, accessories
+    designers: [],
+    markets: [],
+    categories: {},
     sizes: {},
-    sort: "", // default, new, low price, high price, popular
-    locations: [], // U.S, Canada, United Kingdom, Europe, Asia, Austrailia/NZ, Other
-    price: {}, // min, max
-    query: "" // general
+    sort: "",
+    locations: [],
+    price: {},
+    query: ""
   };
 
   self.add = function(params) {
