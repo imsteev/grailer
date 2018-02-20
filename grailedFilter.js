@@ -1,15 +1,14 @@
 exports.GrailedFilter = function() {
   var self = this;
 
-  // valid configuration categories
   self.config = {
     designers: [],
     markets: [],
+    locations: [],
     categories: {},
     sizes: {},
-    sort: "",
-    locations: [],
     price: {},
+    sort: "",
     query: ""
   };
 
@@ -44,5 +43,29 @@ exports.GrailedFilter = function() {
     }
   };
 
-  self.validate = function() {};
+  self.validate = function(config) {
+    if (typeof config !== "object") return false;
+    var validFilters = [
+      "designers",
+      "markets",
+      "sort",
+      "query",
+      "price",
+      "locations",
+      "categories",
+      "sizes"
+    ];
+    var configKeys = Object.keys(config);
+    for (var i = 0; i < configKeys.length; i++) {
+      if (validFilters.indexOf(configKeys[i]) == -1) {
+        return false;
+      }
+    }
+    return true;
+  };
+
+  self.setConfig = function(newConfig) {
+    if (!self.validate(newConfig)) throw "not a valid configuration";
+    self.config = newConfig;
+  };
 };
