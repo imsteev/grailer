@@ -8,12 +8,13 @@ exports.GrailedFilter = function() {
         "markets": [], //hype, core, grailed, sartorial
         "categories": {}, // tops, bottoms, outerwear, footwear, tailoring, accessories
         "sizes": {},
-        "sort": [], // default, new, low price, high price, popular
+        "sort": "", // default, new, low price, high price, popular
         "locations" : [], // U.S, Canada, United Kingdom, Europe, Asia, Austrailia/NZ, Other
         "price": {}, // min, max
+        "query": "" // general
     }
 
-    self.addToFilter = function(params) {
+    self.add = function(params) {
         for (var item in params) {
             if (!(item in self.config)) continue;
             var originalField = self.config[item];
@@ -24,8 +25,7 @@ exports.GrailedFilter = function() {
                     return originalField.indexOf(item) < 0;
                 })
                 self.config[item] = self.config[item].concat(noDups);
-            } else {
-                
+            } else if (typeof originalField == "object") {
                 for (var innerItem in newField) {
                     if (!(innerItem in originalField)) {
                         self.config[item][innerItem] = newField[innerItem]
@@ -37,6 +37,8 @@ exports.GrailedFilter = function() {
                         self.config[item][innerItem] = originalField[innerItem].concat(noDups);
                     }
                 }
+            } else {
+                self.config[item] = newField
             }
         }
     }

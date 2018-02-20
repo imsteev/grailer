@@ -5,6 +5,7 @@ exports.DESIGNER_SEARCH_SELECTOR = '.designer-search-wrapper input';
 exports.DESIGNER_SEARCH_LIST_SELECTOR = '.designer-search-wrapper .designer-list';
 exports.MIN_PRICE = ".price-wrapper .price-min-wrapper input"
 exports.MAX_PRICE = ".price-wrapper .price-max-wrapper input"
+exports.QUERY = 'div.waypoint-wrapper > div > div > form > label > input'
 
 exports.MARKET = {
     grails: '.strata-wrapper div.active-indicator:nth-child(1)',

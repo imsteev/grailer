@@ -24,6 +24,14 @@ casper.start('https://grailed.com/', function() {
     LOCATIONS_TO_SCRAPE = getLocationsToScrape().slice();
 });
 
+casper.then(function() {
+    if (casper.cli.has('q')) {
+        var q = casper.cli.raw.get('q')
+        casper.sendKeys(gs.QUERY, q, {keepFocus: true})
+        filter.add({query: q}); 
+    } 
+})
+
 // Grab categorical filters from command line
 casper.then(function() {
     configureCategoricalFilter('categories')
@@ -51,12 +59,12 @@ casper.then(function() {
         // https://stackoverflow.com/a/25014609/8109239
         minPrice = casper.cli.raw.get('min');
         casper.sendKeys(gs.MIN_PRICE, minPrice, {keepFocus: true});
-        filter.addToFilter({price: {min : minPrice}})
+        filter.add({price: {min : minPrice}})
     }
     if (casper.cli.has('max')) {
         maxPrice = casper.cli.raw.get('max');
         casper.sendKeys(gs.MAX_PRICE, maxPrice, {keepFocus: true});
-        filter.addToFilter({price: {max : maxPrice}})
+        filter.add({price: {max : maxPrice}})
     }
 })
 
@@ -126,7 +134,7 @@ casper.then(function () {
     if (numFeedItems() > 0) {
         this.echo("\n  TOTAL ITEMS SCRAPED: " + numFeedItems());
     }
-    
+    // printMarketFilterDetails();
     if (casper.cli.has('saveFilter')) {
         fs.write('./filter.json', JSON.stringify(filter.config, null, "\t"))
     }
@@ -179,7 +187,7 @@ function configureMarketFilters() {
             setMarketFilter(gs.MARKET[marketName], true);
         }
     });
-    filter.addToFilter({markets: MARKETS_TO_SCRAPE})
+    filter.add({markets: MARKETS_TO_SCRAPE})
 }
 
 function configureCategoricalFilter(domain) {
@@ -193,7 +201,7 @@ function configureCategoricalFilter(domain) {
             var obj = {}
             obj[domain] = {}
             obj[domain][categoryName] = subcategories
-            filter.addToFilter(obj);
+            filter.add(obj);
             CATEGORY_PANEL_SELECTORS.push(gs[domain.toUpperCase()][categoryName]['panel'])
             subcategories.forEach(function (subcategory, _) {
                 CATEGORY_SELECTORS.push(gs[domain.toUpperCase()][categoryName][subcategory])
@@ -217,7 +225,7 @@ function clickDesignerFilter(designer) {
         }
     });
 
-    filter.addToFilter({designers: [designer]});
+    filter.add({designers: [designer]});
 }
 
 function clickSortFilter(sortName) {
@@ -253,7 +261,7 @@ function getMarketsToScrape() {
 function getLocationsToScrape() {
     if (casper.cli.has('locations')) {
         var locations = casper.cli.get('locations').split(',');
-        filter.addToFilter({locations: locations})
+        filter.add({locations: locations})
         return locations.map(function (location) { return location.trim()})
                          .filter(function (location) { return location.length > 0 && location in gs.LOCATIONS });
     }
@@ -275,7 +283,7 @@ function configureSortFilter() {
     if (casper.cli.has('sort')) {
         var sortFilterName = casper.cli.get('sort');
         if (sortFilterName in gs.SORT) {
-            filter.addToFilter({sort: [sortFilterName]});
+            filter.add({sort: sortFilterName});
             clickSortFilter(sortFilterName);
         }
     }
