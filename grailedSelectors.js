@@ -3,6 +3,8 @@ exports.DESIGNER_SEARCH_LIST = '.designer-search-wrapper .designer-list';
 exports.DESIGNER_SEARCH_LIST_RESULTS = '.designer-search-wrapper .designer-list .designer .active-indicator:nth-child(1)'
 exports.DESIGNER_SEARCH_SELECTOR = '.designer-search-wrapper input';
 exports.DESIGNER_SEARCH_LIST_SELECTOR = '.designer-search-wrapper .designer-list';
+exports.MIN_PRICE = ".price-wrapper .price-min-wrapper input"
+exports.MAX_PRICE = ".price-wrapper .price-max-wrapper input"
 
 exports.MARKET = {
     grails: '.strata-wrapper div.active-indicator:nth-child(1)',

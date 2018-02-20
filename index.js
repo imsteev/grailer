@@ -45,6 +45,22 @@ casper.then(function() {
     clickSelectors(locationSelectors);
 })
 
+// Set min/max price filters
+casper.then(function() {
+    var minPrice = '';
+    var maxPrice = '';
+    if (casper.cli.has('min')) {
+        minPrice = parseInt(casper.cli.get('min'));
+        filter.addToFilter({price: {min : minPrice}})
+    }
+    if (casper.cli.has('max')) {
+        maxPrice = parseInt(casper.cli.get('max'));
+        filter.addToFilter({price: {max : minPrice}})
+    }
+    casper.sendKeys(gs.MIN_PRICE, minPrice, {reset: true});
+    casper.sendKeys(gs.MAX_PRICE, maxPrice, {reset: true});
+})
+
 // Click on sort filter
 casper.then(function() {
     configureSortFilter();
@@ -63,7 +79,6 @@ casper.then(function () {
     });
 });
 
-// Determine how many items should be scraped
 casper.then(function () {
     if (casper.cli.has('numItems')) { 
         try {
@@ -73,7 +88,10 @@ casper.then(function () {
             casper.log(e);
         }
     }
+})
 
+// Determine how many items should be scraped
+casper.then(function () {
     if (NUM_ITEMS !== 0 || DESIGNERS_TO_SCRAPE.length === 0) {
         return
     }
