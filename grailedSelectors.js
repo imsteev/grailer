@@ -1,25 +1,26 @@
 exports.GrailedSelectors = function() {
   var self = this;
 
-  self.DESIGNER_SEARCH = ".designer-search-wrapper input";
-  self.DESIGNER_SEARCH_LIST = ".designer-search-wrapper .designer-list";
-  self.DESIGNER_SEARCH_LIST_RESULTS =
-    ".designer-search-wrapper .designer-list .designer .active-indicator:nth-child(1)";
-  self.DESIGNER_SEARCH_SELECTOR = ".designer-search-wrapper input";
-  self.DESIGNER_SEARCH_LIST_SELECTOR =
-    ".designer-search-wrapper .designer-list";
-  self.MIN_PRICE = ".price-wrapper .price-min-wrapper input";
-  self.MAX_PRICE = ".price-wrapper .price-max-wrapper input";
-  self.QUERY = "div.waypoint-wrapper > div > div > form > label > input";
+  self.search = {
+    "query-input": "div.waypoint-wrapper > div > div > form > label > input",
+    "designer-input": ".designer-search-wrapper input",
+    "designer-results":
+      ".designer-search-wrapper .designer-list .designer .active-indicator:nth-child(1)"
+  };
 
-  self.MARKET = {
+  self.prices = {
+    min: ".price-wrapper .price-min-wrapper input",
+    max: ".price-wrapper .price-max-wrapper input"
+  };
+
+  self.markets = {
     grails: ".strata-wrapper div.active-indicator:nth-child(1)",
     hype: ".strata-wrapper div.active-indicator:nth-child(2)",
     sartorial: ".strata-wrapper div.active-indicator:nth-child(3)",
     core: ".strata-wrapper div.active-indicator:nth-child(4)"
   };
 
-  self.SORT = {
+  self.sort = {
     dropdown: "h3.drop-down-title",
     default: ".sort .drop-down-toggle h3:nth-child(1)",
     new: ".sort .drop-down-toggle h3:nth-child(2)",
@@ -28,7 +29,7 @@ exports.GrailedSelectors = function() {
     popular: ".sort .drop-down-toggle h3:nth-child(5)"
   };
 
-  self.CATEGORIES = {
+  self.categories = {
     tops: {
       panel:
         ".categories-wrapper .tops-wrapper .filter-category-item-header h3 span:nth-child(1)",
@@ -169,7 +170,7 @@ exports.GrailedSelectors = function() {
     }
   };
 
-  self.SIZES = {
+  self.sizes = {
     tops: {
       panel:
         ".sizes-wrapper > div.filter-bottom.checkboxes > span:nth-child(1) > div > h3 > span:nth-child(1)",
@@ -331,7 +332,7 @@ exports.GrailedSelectors = function() {
     }
   };
 
-  self.LOCATIONS = {
+  self.locations = {
     US: ".locations-wrapper div.active-indicator:nth-of-type(1)",
     Canada: ".locations-wrapper div.active-indicator:nth-of-type(2)",
     UK: ".locations-wrapper div.active-indicator:nth-of-type(3)",
@@ -341,7 +342,7 @@ exports.GrailedSelectors = function() {
     Other: ".locations-wrapper div.active-indicator:nth-of-type(7)"
   };
 
-  self.DEBUG = {
+  self.debug = {
     markets: {
       grails: ".strata-wrapper .active-indicator:nth-child(1)",
       hype: ".strata-wrapper .active-indicator:nth-child(2)",

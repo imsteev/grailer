@@ -1,5 +1,3 @@
-var _ = require("underscore");
-
 exports.GrailedFilter = function() {
   var self = this;
 

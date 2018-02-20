@@ -1,5 +1,6 @@
 import sys
 import pandas as pd
+import numpy as np
 from designer_summary import DesignerSummary
 
 pd.set_option('display.expand_frame_repr', False)
@@ -26,9 +27,8 @@ class Grailed(object):
         
         # Remove dollar sign and convert to int
         df['price'] = df['price'].map(lambda price_str: int(price_str[1:]))
-
         df['original_price'] = df['original_price'].map(lambda price_str: int(price_str[1:]))
-        df['designer'] = df['designer'].map(lambda designer_str: designer_str.lower())
+        df['designer'] = df['designer'].fillna(value='NO DESIGNER').map(lambda designer_str: designer_str.lower())
         
         def string_to_seconds(time_desc):
             time_denoms = {
