@@ -1,14 +1,13 @@
 # grailer
 
 ## What is this?
-Grailer is a project that allows a user to get information from [Grailed](https://grailed.com). It provides users to scrape, parse, and do some simple analysis on items being sold on the site. 
+Grailer is a project that allows a user to get information from [Grailed](https://grailed.com). It provides users the ability to scrape, parse, and do simple analysis on items using Pandas and NumPy.
 
 __Disclaimer: None of the data being scraped using this tool should be used for commercial reasons__
 
 ## Motivation
   1. This project bridges a gap between two of my interests in fashion and technology
-  2. To my knowledge, Grailed currently does not offer a public API yet - it'd be cool to see more sophisticated analysis
-     on what the market on Grailed looks like
+  2. To my knowledge, Grailed currently does not offer a public API yet
 
 ## Prerequisites
 Install CasperJS and add the binary to your PATH. For parsing and analysis, I recommend using `pip3` to install Pandas and BeautifulSoup4.
@@ -42,11 +41,14 @@ CasperJS comes included with a [command-line interface](http://docs.casperjs.org
 --numItems # number of items you want the script to scrape
 --designers # comma separated list of designers to filter (if left out, will search what is shown by default)
 --markets # grails, hype, sartorial, core (if left out, will search all four)
---locations
---categories
---sizes
+--locations # NEED TO ADD COMMENT
+--categories # NEED TO ADD COMMENT
+--sizes # NEED TO ADD COMMENT
 --sort # default, new, popular, high, low (choose one)
+--min # minimum price
+--max # maximum price
 --f # destination to write results
+--saveFilter # saves the filter you configured via command line as JSON file
 ```
 Example usage:
 ```
