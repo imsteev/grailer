@@ -345,10 +345,7 @@ function sizeFilterDetails() {
 
 function printFilterDetails() {
   casper.echo("[FILTERS]");
-  casper.echo("  MARKETS: " + MARKETS_TO_SCRAPE);
-  casper.echo("  DESIGNERS: " + ACTUAL_DESIGNERS);
-  casper.echo("  ITEM LIMIT: " + NUM_ITEMS);
-  casper.echo("  MIN PRICE: " + filter.config["price"]["min"]);
-  casper.echo("  MAX PRICE: " + filter.config["price"]["max"]);
+  casper.echo("");
+  casper.echo(JSON.stringify(filter.config, null, "  "));
   casper.echo("");
 }
