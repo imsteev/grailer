@@ -208,13 +208,9 @@ function configureCategoricalFilter(domain) {
       obj[domain] = {};
       obj[domain][categoryName] = subcategories;
       filter.add(obj);
-      CATEGORY_PANEL_SELECTORS.push(
-        gs[domain.toUpperCase()][categoryName]["panel"]
-      );
+      CATEGORY_PANEL_SELECTORS.push(gs[domain][categoryName]["panel"]);
       subcategories.forEach(function(subcategory, _) {
-        CATEGORY_SELECTORS.push(
-          gs[domain.toUpperCase()][categoryName][subcategory]
-        );
+        CATEGORY_SELECTORS.push(gs[domain][categoryName][subcategory]);
       });
     }
   }
