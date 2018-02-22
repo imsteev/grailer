@@ -19,9 +19,9 @@ var grailedSelectors = new gs.GrailedSelectors();
 
 // Start a new Casper instance connected to grailed.com
 casper.start("https://grailed.com/", function() {
-  MARKETS_TO_SCRAPE = getMarketsToScrape().slice();
-  DESIGNERS_TO_SCRAPE = getDesignersToScrape().slice();
-  LOCATIONS_TO_SCRAPE = getLocationsToScrape().slice();
+  MARKETS_TO_SCRAPE = getListFromCLI("markets", MARKETS).slice();
+  DESIGNERS_TO_SCRAPE = getListFromCLI("designers", []).slice();
+  LOCATIONS_TO_SCRAPE = getListFromCLI("locations", []).slice();
 });
 
 casper.then(function() {
@@ -112,12 +112,9 @@ casper.then(function() {
   });
 });
 
-casper.then(function() {
-  printFilterDetails();
-});
-
 // Scroll to load a number of items equal to NUM_ITEMS
 casper.then(function() {
+  printFilterDetails();
   casper.echo("[SCRAPE DETAILS]\n");
   if (numFeedItems() > 0) {
     loadFeedItems(null, NUM_ITEMS);
@@ -131,6 +128,14 @@ casper.then(function() {
   var html = this.getHTML(".feed", true);
   dest = casper.cli.has("f") ? casper.cli.get("f") : "./feed.html";
   fs.write(dest, html);
+});
+
+casper.then(function() {
+  filter.add({
+    markets: MARKETS_TO_SCRAPE,
+    locations: LOCATIONS_TO_SCRAPE,
+    designers: DESIGNERS_TO_SCRAPE
+  });
 });
 
 casper.then(function() {
@@ -155,66 +160,6 @@ function clickSelectors(selectors) {
   });
 }
 
-function numFeedItems() {
-  return casper.evaluate(function() {
-    return $("div.feed-item").length;
-  });
-}
-
-// TODO: refactor this
-function loadFeedItems(prevFeedItemCount, numItems) {
-  if (!!prevFeedItemCount && prevFeedItemCount == numFeedItems()) {
-    TRIES++;
-    casper.echo("  Trying to load more (#" + TRIES + ")");
-  } else {
-    prevFeedItemCount = numFeedItems();
-    casper.echo("  ITEMS SCRAPED: " + prevFeedItemCount);
-    TRIES = 0;
-  }
-
-  casper.then(function() {
-    casper.scrollToBottom();
-    casper.wait(1000, function() {
-      if (numFeedItems() < numItems && TRIES < TRY_SCROLL_LIMIT) {
-        loadFeedItems(prevFeedItemCount, numItems);
-      }
-    });
-  });
-}
-
-function configureMarketFilters() {
-  var i = 0;
-  casper.repeat(MARKETS.length, function() {
-    var marketName = MARKETS[i++];
-    if (MARKETS_TO_SCRAPE.indexOf(marketName) == -1) {
-      // By default, grails market is checked
-      setMarketFilter(grailedSelectors.markets[marketName], false);
-    } else {
-      setMarketFilter(grailedSelectors.markets[marketName], true);
-    }
-  });
-  filter.add({ markets: MARKETS_TO_SCRAPE });
-}
-
-function configureCategoricalFilter(domain) {
-  if (casper.cli.has(domain)) {
-    var res = casper.cli.get(domain).split(" ");
-    for (var i = 0; i < res.length; i++) {
-      var category = res[i];
-      var items = category.split(":");
-      var categoryName = items[0];
-      var subcategories = items[1].split(",");
-      var obj = {};
-      obj[domain] = {};
-      obj[domain][categoryName] = subcategories;
-      filter.add(obj);
-      CATEGORY_PANEL_SELECTORS.push(gs[domain][categoryName]["panel"]);
-      subcategories.forEach(function(subcategory, _) {
-        CATEGORY_SELECTORS.push(gs[domain][categoryName][subcategory]);
-      });
-    }
-  }
-}
 function clickDesignerFilter(designer) {
   // Must search for designer, and then a drop down with potential matches appears
   casper.sendKeys(grailedSelectors.search["designer-input"], designer, {
@@ -238,10 +183,36 @@ function clickDesignerFilter(designer) {
   filter.add({ designers: [designer] });
 }
 
-function clickSortFilter(sortName) {
-  casper.click(grailedSelectors.sort["dropdown"]);
-  casper.click(grailedSelectors.sort[sortName]);
-  casper.wait(1000);
+function numFeedItems() {
+  return casper.evaluate(function() {
+    return $("div.feed-item").length;
+  });
+}
+
+function getMarketItemCount(marketName) {
+  var selector = grailedSelectors.markets[marketName] + " .sub-title.small";
+  return parseInt(casper.getElementInfo(selector).text);
+}
+
+// TODO: refactor this
+function loadFeedItems(prevFeedItemCount, numItems) {
+  if (!!prevFeedItemCount && prevFeedItemCount == numFeedItems()) {
+    TRIES++;
+    casper.echo("  Trying to load more (#" + TRIES + ")");
+  } else {
+    prevFeedItemCount = numFeedItems();
+    casper.echo("  ITEMS SCRAPED: " + prevFeedItemCount);
+    TRIES = 0;
+  }
+
+  casper.then(function() {
+    casper.scrollToBottom();
+    casper.wait(1000, function() {
+      if (numFeedItems() < numItems && TRIES < TRY_SCROLL_LIMIT) {
+        loadFeedItems(prevFeedItemCount, numItems);
+      }
+    });
+  });
 }
 
 function setMarketFilter(selector, active) {
@@ -253,54 +224,61 @@ function setMarketFilter(selector, active) {
   }
 }
 
-function getMarketItemCount(marketName) {
-  var selector = grailedSelectors.markets[marketName] + " .sub-title.small";
-  return parseInt(casper.getElementInfo(selector).text);
+function configureMarketFilters() {
+  var i = 0;
+  casper.repeat(MARKETS.length, function() {
+    var marketName = MARKETS[i++];
+    if (MARKETS_TO_SCRAPE.indexOf(marketName) == -1) {
+      // By default, grails market is checked
+      setMarketFilter(grailedSelectors.markets[marketName], false);
+    } else {
+      setMarketFilter(grailedSelectors.markets[marketName], true);
+    }
+  });
 }
 
-function getMarketsToScrape() {
-  if (casper.cli.has("markets")) {
-    var markets = casper.cli.get("markets").split(",");
-    return markets
-      .map(function(market) {
-        return market.trim();
-      })
-      .filter(function(market) {
-        return market.length > 0 && market in grailedSelectors.markets;
+function configureCategoricalFilter(domain) {
+  if (casper.cli.has(domain)) {
+    var res = casper.cli.get(domain).split(" ");
+    for (var i = 0; i < res.length; i++) {
+      var category = res[i];
+      var items = category.split(":");
+      var categoryName = items[0];
+      var subcategories = items[1].split(",");
+      var obj = {};
+      obj[domain] = {};
+      obj[domain][categoryName] = subcategories;
+      filter.add(obj);
+      CATEGORY_PANEL_SELECTORS.push(
+        grailedSelectors[domain][categoryName]["panel"]
+      );
+      subcategories.forEach(function(subcategory, _) {
+        CATEGORY_SELECTORS.push(
+          grailedSelectors[domain][categoryName][subcategory]
+        );
       });
+    }
   }
-  return MARKETS.slice();
 }
 
-function getLocationsToScrape() {
-  if (casper.cli.has("locations")) {
-    var locations = casper.cli.get("locations").split(",");
-    filter.add({ locations: locations });
-    return locations
-      .map(function(location) {
-        return location.trim();
+function getListFromCLI(cliArg, L) {
+  if (casper.cli.has(cliArg)) {
+    var res = casper.cli.get(cliArg).split(",");
+    return res
+      .map(function(item) {
+        return item.trim();
       })
-      .filter(function(location) {
-        return location.length > 0 && location in grailedSelectors.locations;
+      .filter(function(item) {
+        return item.length > 0;
       });
   }
-  return [];
+  return L;
 }
 
-function getDesignersToScrape() {
-  if (casper.cli.has("designers")) {
-    var designers = casper.cli.get("designers").split(",");
-
-    return designers
-      .map(function(designer) {
-        return designer.trim();
-      })
-      .filter(function(designer) {
-        return designer.length > 0;
-      });
-  }
-  // Empty represents all designers
-  return [];
+function clickSortFilter(sortName) {
+  casper.click(grailedSelectors.sort["dropdown"]);
+  casper.click(grailedSelectors.sort[sortName]);
+  casper.wait(1000);
 }
 
 function configureSortFilter() {
@@ -324,19 +302,6 @@ function printMarketFilterDetails() {
       ]
     );
   });
-}
-
-function sizeFilterDetails() {
-  require("utils").dump(
-    casper.getElementInfo(grailedSelectors.debug["sizes"]["footwear"]["all"])[
-      "text"
-    ]
-  );
-  require("utils").dump(
-    casper.getElementInfo(grailedSelectors.debug["sizes"]["footwear"]["all"])[
-      "attributes"
-    ]
-  );
 }
 
 function printFilterDetails() {
