@@ -1,4 +1,4 @@
-exports.GrailedSelectors = function() {
+exports.GrailedSelectors = function () {
   var self = this;
 
   self.search = {

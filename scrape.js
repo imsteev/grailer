@@ -3,7 +3,7 @@ var casper = require("casper").create();
 var gf = require("./grailedFilter");
 var gs = require("./grailedSelectors");
 
-var NUM_ITEMS = 0;
+var LIMIT = 0;
 var MARKETS = ["grails", "hype", "sartorial", "core"];
 var ACTUAL_DESIGNERS = [];
 var MARKETS_TO_SCRAPE = [];
@@ -13,41 +13,17 @@ var LOCATIONS_TO_SCRAPE = [];
 var CATEGORY_PANEL_SELECTORS = [];
 var TRIES = 0;
 var TRY_SCROLL_LIMIT = 15;
+var CONFIGURABLE_OPTIONS = ['markets', 'designers', 'locations', 'sort', 'q', 'categories', 'sizes', 'min', 'max', 'limit'];
 var scrollNum = 0;
 var filter = new gf.GrailedFilter();
 var grailedSelectors = new gs.GrailedSelectors();
 
 // Start a new Casper instance connected to grailed.com
 casper.start("https://grailed.com/", function () {
-  MARKETS_TO_SCRAPE = getListFromCLI("markets", MARKETS).slice();
-  DESIGNERS_TO_SCRAPE = getListFromCLI("designers", []).slice();
-  LOCATIONS_TO_SCRAPE = getListFromCLI("locations", []).slice();
-});
-
-function configureFiltersFromObj(config) {
-  casper.sendKeys(grailedSelectors.search["query-input"], config.query);
-}
-
-casper.then(function () {
-  if (casper.cli.has("q")) {
-    var q = casper.cli.raw.get("q");
-    casper.sendKeys(grailedSelectors.search["query-input"], q);
-    filter.add({ query: q });
-  }
-});
-
-casper.then(function () {
-  if (casper.cli.has('configFile')) {
-    var obj = casper.cli.get("configFile");
-    var data = JSON.parse(fs.read(obj));
-    console.log(JSON.stringify(data));
-  }
-})
-
-// Grab categorical filters from command line
-casper.then(function () {
-  configureCategoricalFilter("categories");
-  configureCategoricalFilter("sizes");
+  var i = 0;
+  casper.repeat(CONFIGURABLE_OPTIONS.length, function () {
+    configureFromCLI(CONFIGURABLE_OPTIONS[i++]);
+  });
 });
 
 // Click on selectors associated with the categorical filters
@@ -56,80 +32,23 @@ casper.then(function () {
   clickSelectors(CATEGORY_SELECTORS);
 });
 
-// Click on location filters
-casper.then(function () {
-  var locationSelectors = [];
-  LOCATIONS_TO_SCRAPE.forEach(function (location, _) {
-    locationSelectors.push(grailedSelectors.locations[location]);
-  });
-  clickSelectors(locationSelectors);
-});
-
-// Set min/max price filters
-casper.then(function () {
-  if (casper.cli.has("min")) {
-    // https://stackoverflow.com/a/25014609/8109239
-    minPrice = casper.cli.raw.get("min");
-    casper.sendKeys(grailedSelectors.prices["min"], minPrice, {
-      keepFocus: true
-    });
-    filter.add({ price: { min: minPrice } });
-  }
-  if (casper.cli.has("max")) {
-    maxPrice = casper.cli.raw.get("max");
-    casper.sendKeys(grailedSelectors.prices["max"], maxPrice, {
-      keepFocus: true
-    });
-    filter.add({ price: { max: maxPrice } });
-  }
-});
-
-// Click on sort filter
-casper.then(function () {
-  configureSortFilter();
-});
-
-// Click on market filters
-casper.then(function () {
-  configureMarketFilters();
-});
-
-// Search and click for designer filter
-casper.then(function () {
-  var i = 0;
-  casper.repeat(DESIGNERS_TO_SCRAPE.length, function () {
-    clickDesignerFilter(DESIGNERS_TO_SCRAPE[i++]);
-  });
-});
-
-casper.then(function () {
-  if (casper.cli.has("numItems")) {
-    try {
-      var numItems = parseInt(casper.cli.get("numItems"));
-      NUM_ITEMS = numItems > 0 ? numItems : NUM_ITEMS;
-    } catch (e) {
-      casper.log(e);
-    }
-  }
-});
-
 // Determine how many items should be scraped
 casper.then(function () {
-  if (NUM_ITEMS !== 0 || DESIGNERS_TO_SCRAPE.length === 0) {
+  if (LIMIT !== 0 || DESIGNERS_TO_SCRAPE.length === 0) {
+    casper.log("LIMIT " + LIMIT)
     return;
   }
   MARKETS_TO_SCRAPE.forEach(function (marketName) {
-    NUM_ITEMS += getMarketItemCount(marketName);
+    LIMIT += getMarketItemCount(marketName);
     casper.wait(500);
   });
 });
 
-// Scroll to load a number of items equal to NUM_ITEMS
+// Scroll to load a number of items equal to LIMIT
 casper.then(function () {
-  printFilterDetails();
   casper.echo("[SCRAPE DETAILS]\n");
   if (numFeedItems() > 0) {
-    loadFeedItems(null, NUM_ITEMS);
+    loadFeedItems(null, LIMIT);
   } else {
     casper.echo("  EMPTY FEED");
   }
@@ -151,33 +70,99 @@ casper.then(function () {
 });
 
 casper.then(function () {
+  printFilterDetails();
   this.echo("\n[FINISHED]");
   if (numFeedItems() > 0) {
     this.echo("\n  TOTAL ITEMS SCRAPED: " + numFeedItems());
   }
   // printMarketFilterDetails();
-  if (casper.cli.has("saveFilter")) {
+  if (casper.cli.has("save")) {
     fs.write("./filter.json", JSON.stringify(filter.config, null, "\t"));
   }
 });
 
 casper.run();
 
-function loadConfigFromCLI() {
-  if (casper.cli.has("q")) {
-    var q = casper.cli.raw.get("q");
-    casper.sendKeys(grailedSelectors.search["query-input"], q);
-    filter.add({ query: q });
+function configureFromCLI(opt) {
+  if (casper.cli.has(opt)) {
+    configureOptionFromCLI(opt);
+  } else {
+    console.log('Could not configure option: ' + opt);
   }
-  configureCategoricalFilter("categories");
-  configureCategoricalFilter("sizes");
-  if (casper.cli.has("min")) {
-    // https://stackoverflow.com/a/25014609/8109239
-    minPrice = casper.cli.raw.get("min");
+}
+
+function configureOptionFromCLI(opt) {
+  switch (opt) {
+    case "markets":
+      MARKETS_TO_SCRAPE = getListFromCLI("markets", MARKETS).slice();
+      configureMarketFilters();
+      break;
+    case "designers":
+      DESIGNERS_TO_SCRAPE = getListFromCLI("designers", []).slice();
+      clickDesignerFilters();
+      break;
+    case "locations":
+      LOCATIONS_TO_SCRAPE = getListFromCLI("locations", []).slice();
+      clickLocationFilters();
+      break;
+    case "sort":
+      var sortFilterName = casper.cli.get(opt);
+      if (sortFilterName in grailedSelectors.sort) {
+        filter.add({ sort: sortFilterName });
+        clickSortFilter(sortFilterName);
+      }
+      break;
+    case "q":
+      var q = casper.cli.raw.get(opt);
+      casper.sendKeys(grailedSelectors.search["query-input"], q);
+      filter.add({ query: q });
+      break;
+    case "categories":
+      configureCategoricalFilter(opt);
+      break;
+    case "sizes":
+      configureCategoricalFilter(opt);
+      break;
+    case "min":
+      const minPrice = casper.cli.raw.get(opt);
+      // Set min
+      casper.sendKeys(grailedSelectors.prices["min"], minPrice, {
+        keepFocus: true
+      });
+      break;
+    case "max":
+      const maxPrice = casper.cli.raw.get(opt);
+      // Set max
+      casper.sendKeys(grailedSelectors.prices["max"], minPrice, {
+        keepFocus: true
+      });
+      break;
+    case "limit":
+      try {
+        var limit = parseInt(casper.cli.get(opt));
+        LIMIT = Math.max(limit, LIMIT);
+      } catch (e) {
+        casper.log("Could not parse 'limit' as integer");
+      };
+      break;
+    default: casper.log(opt + ' is not a valid option');
   }
-  if (casper.cli.has("max")) {
-    maxPrice = casper.cli.raw.get("max");
-  }
+}
+
+// Search and click for designer filter
+function clickDesignerFilters() {
+  var i = 0;
+  casper.repeat(DESIGNERS_TO_SCRAPE.length, function () {
+    clickDesignerFilter(DESIGNERS_TO_SCRAPE[i++]);
+  });
+};
+
+function clickLocationFilters() {
+  var locationSelectors = [];
+  LOCATIONS_TO_SCRAPE.forEach(function (location, _) {
+    locationSelectors.push(grailedSelectors.locations[location]);
+  });
+  clickSelectors(locationSelectors);
 }
 
 function clickSelectors(selectors) {
@@ -224,7 +209,7 @@ function getMarketItemCount(marketName) {
 }
 
 // TODO: refactor this
-function loadFeedItems(prevFeedItemCount, numItems) {
+function loadFeedItems(prevFeedItemCount, limit) {
   if (!!prevFeedItemCount && prevFeedItemCount == numFeedItems()) {
     TRIES++;
     casper.echo("  Trying to load more (#" + TRIES + ")");
@@ -237,8 +222,8 @@ function loadFeedItems(prevFeedItemCount, numItems) {
   casper.then(function () {
     casper.scrollToBottom();
     casper.wait(1000, function () {
-      if (numFeedItems() < numItems && TRIES < TRY_SCROLL_LIMIT) {
-        loadFeedItems(prevFeedItemCount, numItems);
+      if (numFeedItems() < limit && TRIES < TRY_SCROLL_LIMIT) {
+        loadFeedItems(prevFeedItemCount, limit);
       }
     });
   });
@@ -310,16 +295,6 @@ function clickSortFilter(sortName) {
   casper.wait(1000);
 }
 
-function configureSortFilter() {
-  if (casper.cli.has("sort")) {
-    var sortFilterName = casper.cli.get("sort");
-    if (sortFilterName in grailedSelectors.sort) {
-      filter.add({ sort: sortFilterName });
-      clickSortFilter(sortFilterName);
-    }
-  }
-}
-
 function printMarketFilterDetails() {
   MARKETS.forEach(function (market, _) {
     require("utils").dump(
@@ -337,7 +312,6 @@ function printFilterDetails() {
   casper.echo("[FILTERS]");
   casper.echo("");
   casper.echo(JSON.stringify(filter.config, null, "  "));
-  casper.echo(getSelectorsFromFilter(filter.config));
   casper.echo("");
 }
 
@@ -361,13 +335,3 @@ var flattenObject = function (ob) {
   }
   return toReturn;
 };
-
-function getSelectorsFromFilter(filter) {
-  var flattened = flattenObject(filter.config);
-  for (var path in filter.config) {
-    for (var subpath in path.split(".")) {
-      console.log(subpath, ",");
-    }
-    console.log("---------");
-  }
-}
