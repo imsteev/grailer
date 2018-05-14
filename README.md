@@ -1,16 +1,17 @@
 # grailer
 
 ## What is this?
-Grailer is a project that allows a user to get information from [Grailed](https://grailed.com). It provides users the ability to scrape, parse, and do simple analysis on items using Pandas and NumPy.
+Grailer is a tool that allows a user to obtain information from [Grailed](https://grailed.com). It provides users the ability to scrape, parse, and do simple analysis on items using Pandas and NumPy.
 
 __Disclaimer: None of the data being scraped using this tool should be used for commercial purposes__
 
 ## Motivation
-  1. This project bridges a gap between two of my interests in fashion and technology
-  2. To my knowledge, Grailed currently does not offer a public API yet
+  1. This project bridges my interests in fashion and technology
+  2. Grailed currently does not offer a public API yet
+  3. Learn how to use browser automation tools
 
 ## Prerequisites
-Install CasperJS and add the binary to your PATH. For parsing and analysis, I recommend using `pip3` to install Pandas and BeautifulSoup4.
+Install CasperJS and add the binary to your PATH. For parsing and analysis, I am using Python3. Using `pip3` to install Pandas and BeautifulSoup4 is recommended.
 
 There are three files to be aware of:
 
@@ -41,15 +42,15 @@ CasperJS comes included with a [command-line interface](http://docs.casperjs.org
 --limit # number of items you want the script to scrape
 --designers # comma separated list of designers to filter (if left out, will search what is shown by default)
 --markets # grails, hype, sartorial, core (if left out, will search all four)
---locations # NEED TO ADD COMMENT
---categories # NEED TO ADD COMMENT
---sizes # NEED TO ADD COMMENT
+--locations # US, Canada, UK, EU, Asia, Aus, Other
+--categories # See grailed.com for comprehensive options
+--sizes # See grailed.com for comprehensive options
 --sort # default, new, popular, high, low (choose one)
 --min # minimum price
 --max # maximum price
 --q # general query string to search
 --f # destination to write results
---saveFilter # saves the filter you configured via command line as JSON file
+--save # saves the filter you configured via command line as JSON file
 ```
 Example usage:
 ```
