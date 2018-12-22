@@ -214,7 +214,7 @@ function clickDesignerFilter(designer) {
 
 function numFeedItems() {
   return casper.evaluate(function () {
-    return $("div.feed-item").length;
+    return document.querySelectorAll("div.feed-item").length;
   });
 }
 
