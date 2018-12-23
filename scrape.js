@@ -40,6 +40,7 @@ casper.then(function () {
   if (casper.cli.has('configFile')) {
     var obj = casper.cli.get("configFile");
     var data = JSON.parse(fs.read(obj));
+    filter.add(data)
     console.log(JSON.stringify(data));
   }
 })
