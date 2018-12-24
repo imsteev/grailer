@@ -33,6 +33,9 @@ function processCLIvaribles() {
     locations: getListFromCLI("locations", []).slice(),
     designers: getListFromCLI("designers", []).slice()
   });
+  if(filter.config["markets"].length == 0) {
+    filter.add({ markets: MARKETS }) //If no markets specified, default to all
+  }
   
   if (casper.cli.has("q")) {
     var q = casper.cli.raw.get("q");
