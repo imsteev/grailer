@@ -21,12 +21,13 @@ exports.GrailedSelectors = function() {
   };
 
   self.sort = {
-    dropdown: "h3.drop-down-title",
-    default: ".sort .drop-down-toggle h3:nth-child(1)",
-    new: ".sort .drop-down-toggle h3:nth-child(2)",
-    low: ".sort .drop-down-toggle h3:nth-child(3)",
-    high: ".sort .drop-down-toggle h3:nth-child(4)",
-    popular: ".sort .drop-down-toggle h3:nth-child(5)"
+    dropdown: "#Sort",
+    default: "#Sort > option:nth-child(1)",
+    new: "#Sort > option:nth-child(2)",
+    low: "#Sort > option:nth-child(3)",
+    high: "#Sort > option:nth-child(4)",
+    popular: "#Sort > option:nth-child(5)",
+    trending: "#Sort > option:nth-child(6)"
   };
 
   self.categories = {
