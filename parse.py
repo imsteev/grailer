@@ -29,11 +29,12 @@ class FeedParser(object):
             writer = csv.writer(csvfile)
 
             for feed_item_html in self.get_feed_items():
-                try:
-                    item = self.extract_feed_item_fields(feed_item_html)
-                    writer.writerow([item[field_name] for field_name in fields_to_write])
-                except:
-                    print("Something wrong happened writing data")
+                if 'empty-item' not in feed_item_html.attrs['class']:
+                    try:
+                        item = self.extract_feed_item_fields(feed_item_html)
+                        writer.writerow([item[field_name] for field_name in fields_to_write])
+                    except:
+                        print("Something wrong happened writing data")
     
     def extract_feed_item_fields(self, feed_item_html):
         result = {}
