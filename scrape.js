@@ -3,6 +3,7 @@ var casper = require("casper").create();
 var gf = require("./grailedFilter");
 var gs = require("./grailedSelectors");
 
+const GRAILED_BASE_URL = "https://www.grailed.com"
 var NUM_ITEMS = 0;
 var MARKETS = ["grails", "hype", "sartorial", "core"];
 var ACTUAL_DESIGNERS = [];
@@ -13,20 +14,15 @@ var LOCATIONS_TO_SCRAPE = [];
 var CATEGORY_PANEL_SELECTORS = [];
 var TRIES = 0;
 var TRY_SCROLL_LIMIT = 15;
-var scrollNum = 0;
 var filter = new gf.GrailedFilter();
 var grailedSelectors = new gs.GrailedSelectors();
 
-// Start a new Casper instance connected to grailed.com
-casper.start("https://grailed.com/", function () {
+// Start a new Casper instance connected to scrollable feed
+casper.start(GRAILED_BASE_URL + "/shop", function () {
   MARKETS_TO_SCRAPE = getListFromCLI("markets", MARKETS).slice();
   DESIGNERS_TO_SCRAPE = getListFromCLI("designers", []).slice();
   LOCATIONS_TO_SCRAPE = getListFromCLI("locations", []).slice();
 });
-
-function configureFiltersFromObj(config) {
-  casper.sendKeys(grailedSelectors.search["query-input"], config.query);
-}
 
 casper.then(function () {
   if (casper.cli.has("q")) {
