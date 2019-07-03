@@ -16,26 +16,19 @@ var TRIES = 0;
 var TRY_SCROLL_LIMIT = 15;
 var filter = new gf.GrailedFilter();
 var grailedSelectors = new gs.GrailedSelectors();
-const initialize = function () {
-  MARKETS_TO_SCRAPE = getListFromCLI("markets", MARKETS).slice();
-  DESIGNERS_TO_SCRAPE = getListFromCLI("designers", []).slice();
-  LOCATIONS_TO_SCRAPE = getListFromCLI("locations", []).slice();
-}
 
-//
+// Setup the Casper playbook for a target url
 casper.start(GRAILED_BASE_URL + "/shop", initialize);
 
-// Setup: configuration from command line, clicking things on the site to load the filter, etc.
-casper.then(getQueryInput);
+// Setup: configure the page such that it is set with the right filter
+casper.then(configureQueryFilter);
 casper.then(configureCategoricalFilters);
-casper.then(clickCategoricalFilters);
-casper.then(clickLocationFilters);
+casper.then(configureLocationFilters);
 casper.then(configurePriceFilters);
 casper.then(configureSortFilter);
 casper.then(configureMarketFilters);
 casper.then(configureDesignerFilters);
-casper.then(getNumItemsFromCLI);
-casper.then(setNumItems);
+casper.then(configureNumItems)
 
 // Scrape
 casper.then(scrollUntilNumItems)
@@ -43,11 +36,17 @@ casper.then(captureFeed);
 casper.then(finish);
 
 
-// Start the Casper playbook!
+// Run the Casper playbook!
 casper.run();
 
 
-function getQueryInput() {
+function initialize () {
+  MARKETS_TO_SCRAPE = getListFromCLI("markets", MARKETS).slice();
+  DESIGNERS_TO_SCRAPE = getListFromCLI("designers", []).slice();
+  LOCATIONS_TO_SCRAPE = getListFromCLI("locations", []).slice();
+}
+
+function configureQueryFilter() {
   if (casper.cli.has("q")) {
     var q = casper.cli.raw.get("q");
     casper.sendKeys(grailedSelectors.search["query-input"], q);
@@ -55,18 +54,14 @@ function getQueryInput() {
   }
 }
 
-// Grab categorical filters from command line
 function configureCategoricalFilters() {
   configureCategoricalFilter("categories");
   configureCategoricalFilter("sizes");
-}
-
-function clickCategoricalFilters() {
   clickSelectors(CATEGORY_PANEL_SELECTORS);
   clickSelectors(CATEGORY_SELECTORS);
 }
 
-function clickLocationFilters() {
+function configureLocationFilters() {
   var locationSelectors = [];
   LOCATIONS_TO_SCRAPE.forEach(function (location, _) {
     locationSelectors.push(grailedSelectors.locations[location]);
@@ -99,7 +94,7 @@ function configureDesignerFilters() {
   });
 }
 
-function getNumItemsFromCLI() {
+function configureNumItems() {
   if (casper.cli.has("numItems")) {
     try {
       var numItems = parseInt(casper.cli.get("numItems"));
@@ -108,9 +103,6 @@ function getNumItemsFromCLI() {
       casper.log(e);
     }
   }
-}
-
-function setNumItems() {
   if (NUM_ITEMS !== 0 || DESIGNERS_TO_SCRAPE.length === 0) {
     return;
   }
