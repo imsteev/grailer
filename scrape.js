@@ -16,53 +16,65 @@ var TRIES = 0;
 var TRY_SCROLL_LIMIT = 15;
 var filter = new gf.GrailedFilter();
 var grailedSelectors = new gs.GrailedSelectors();
-
-// Start a new Casper instance connected to scrollable feed
-casper.start(GRAILED_BASE_URL + "/shop", function () {
+const initialize = function () {
   MARKETS_TO_SCRAPE = getListFromCLI("markets", MARKETS).slice();
   DESIGNERS_TO_SCRAPE = getListFromCLI("designers", []).slice();
   LOCATIONS_TO_SCRAPE = getListFromCLI("locations", []).slice();
-});
+}
 
-casper.then(function () {
+//
+casper.start(GRAILED_BASE_URL + "/shop", initialize);
+
+// Setup: configuration from command line, clicking things on the site to load the filter, etc.
+casper.then(getQueryInput);
+casper.then(configureCategoricalFilters);
+casper.then(clickCategoricalFilters);
+casper.then(clickLocationFilters);
+casper.then(configurePriceFilters);
+casper.then(configureSortFilter);
+casper.then(configureMarketFilters);
+casper.then(configureDesignerFilters);
+casper.then(getNumItemsFromCLI);
+casper.then(setNumItems);
+
+// Scrape
+casper.then(scrollUntilNumItems)
+casper.then(captureFeed);
+casper.then(finish);
+
+
+// Start the Casper playbook!
+casper.run();
+
+
+function getQueryInput() {
   if (casper.cli.has("q")) {
     var q = casper.cli.raw.get("q");
     casper.sendKeys(grailedSelectors.search["query-input"], q);
     filter.add({ query: q });
   }
-});
-
-casper.then(function () {
-  if (casper.cli.has('configFile')) {
-    var obj = casper.cli.get("configFile");
-    var data = JSON.parse(fs.read(obj));
-    console.log(JSON.stringify(data));
-  }
-})
+}
 
 // Grab categorical filters from command line
-casper.then(function () {
+function configureCategoricalFilters() {
   configureCategoricalFilter("categories");
   configureCategoricalFilter("sizes");
-});
+}
 
-// Click on selectors associated with the categorical filters
-casper.then(function () {
+function clickCategoricalFilters() {
   clickSelectors(CATEGORY_PANEL_SELECTORS);
   clickSelectors(CATEGORY_SELECTORS);
-});
+}
 
-// Click on location filters
-casper.then(function () {
+function clickLocationFilters() {
   var locationSelectors = [];
   LOCATIONS_TO_SCRAPE.forEach(function (location, _) {
     locationSelectors.push(grailedSelectors.locations[location]);
   });
   clickSelectors(locationSelectors);
-});
+}
 
-// Set min/max price filters
-casper.then(function () {
+function configurePriceFilters() {
   if (casper.cli.has("min")) {
     // https://stackoverflow.com/a/25014609/8109239
     minPrice = casper.cli.raw.get("min");
@@ -78,27 +90,16 @@ casper.then(function () {
     });
     filter.add({ price: { max: maxPrice } });
   }
-});
+}
 
-// Click on sort filter
-casper.then(function () {
-  configureSortFilter();
-});
-
-// Click on market filters
-casper.then(function () {
-  configureMarketFilters();
-});
-
-// Search and click for designer filter
-casper.then(function () {
+function configureDesignerFilters() {
   var i = 0;
   casper.repeat(DESIGNERS_TO_SCRAPE.length, function () {
     clickDesignerFilter(DESIGNERS_TO_SCRAPE[i++]);
   });
-});
+}
 
-casper.then(function () {
+function getNumItemsFromCLI() {
   if (casper.cli.has("numItems")) {
     try {
       var numItems = parseInt(casper.cli.get("numItems"));
@@ -107,10 +108,9 @@ casper.then(function () {
       casper.log(e);
     }
   }
-});
+}
 
-// Determine how many items should be scraped
-casper.then(function () {
+function setNumItems() {
   if (NUM_ITEMS !== 0 || DESIGNERS_TO_SCRAPE.length === 0) {
     return;
   }
@@ -118,10 +118,27 @@ casper.then(function () {
     NUM_ITEMS += getMarketItemCount(marketName);
     casper.wait(500);
   });
-});
+}
 
-// Scroll to load a number of items equal to NUM_ITEMS
-casper.then(function () {
+function getSelectorsFromFilter(filter) {
+  var flattened = flattenObject(filter.config);
+  for (var path in filter.config) {
+    for (var subpath in path.split(".")) {
+      console.log(subpath, ",");
+    }
+    console.log("---------");
+  }
+}
+
+function printFilterDetails() {
+  casper.echo("[FILTERS]");
+  casper.echo("");
+  casper.echo(JSON.stringify(filter.config, null, "  "));
+  casper.echo(getSelectorsFromFilter(filter.config));
+  casper.echo("");
+}
+
+function scrollUntilNumItems() {
   printFilterDetails();
   casper.echo("[SCRAPE DETAILS]\n");
   if (numFeedItems() > 0) {
@@ -129,24 +146,15 @@ casper.then(function () {
   } else {
     casper.echo("  EMPTY FEED");
   }
-});
+}
 
-// Write the loaded content into a local file
-casper.then(function () {
+function captureFeed() {
   var html = this.getHTML(".feed", true);
   dest = casper.cli.has("f") ? casper.cli.get("f") : "./feed.html";
   fs.write(dest, html);
-});
+}
 
-casper.then(function () {
-  filter.add({
-    markets: MARKETS_TO_SCRAPE,
-    locations: LOCATIONS_TO_SCRAPE,
-    designers: DESIGNERS_TO_SCRAPE
-  });
-});
-
-casper.then(function () {
+function finish() {
   this.echo("\n[FINISHED]");
   if (numFeedItems() > 0) {
     this.echo("\n  TOTAL ITEMS SCRAPED: " + numFeedItems());
@@ -154,25 +162,6 @@ casper.then(function () {
   // printMarketFilterDetails();
   if (casper.cli.has("saveFilter")) {
     fs.write("./filter.json", JSON.stringify(filter.config, null, "\t"));
-  }
-});
-
-casper.run();
-
-function loadConfigFromCLI() {
-  if (casper.cli.has("q")) {
-    var q = casper.cli.raw.get("q");
-    casper.sendKeys(grailedSelectors.search["query-input"], q);
-    filter.add({ query: q });
-  }
-  configureCategoricalFilter("categories");
-  configureCategoricalFilter("sizes");
-  if (casper.cli.has("min")) {
-    // https://stackoverflow.com/a/25014609/8109239
-    minPrice = casper.cli.raw.get("min");
-  }
-  if (casper.cli.has("max")) {
-    maxPrice = casper.cli.raw.get("max");
   }
 }
 
@@ -329,14 +318,6 @@ function printMarketFilterDetails() {
   });
 }
 
-function printFilterDetails() {
-  casper.echo("[FILTERS]");
-  casper.echo("");
-  casper.echo(JSON.stringify(filter.config, null, "  "));
-  casper.echo(getSelectorsFromFilter(filter.config));
-  casper.echo("");
-}
-
 // inspired from https://gist.github.com/penguinboy/762197
 var flattenObject = function (ob) {
   var toReturn = {};
@@ -357,13 +338,3 @@ var flattenObject = function (ob) {
   }
   return toReturn;
 };
-
-function getSelectorsFromFilter(filter) {
-  var flattened = flattenObject(filter.config);
-  for (var path in filter.config) {
-    for (var subpath in path.split(".")) {
-      console.log(subpath, ",");
-    }
-    console.log("---------");
-  }
-}
