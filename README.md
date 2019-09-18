@@ -3,6 +3,9 @@
 ##### DISCLAIMER
 This project was done quite a while back. I can't guarantee the scrape will work, because all the selectors right now are hardcoded. I have plans on rewriting/redesigning such that it can be more future-proof.
 
+#### UPCOMING WORK
+- [ ] Dockerize
+
 ## What is this?
 Grailer is a project that allows a user to get information from [Grailed](https://grailed.com). It provides users the ability to scrape, parse, and do simple analysis on items using Pandas and NumPy.
 
